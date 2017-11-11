@@ -1,12 +1,17 @@
 #pragma once
+
+#include <ostream>
+
 class Coordinate
 {
 public:
-	Coordinate();
+	Coordinate(unsigned long x, unsigned long y);
 	~Coordinate();
+	friend std::ostream &operator<<(std::ostream &, const Coordinate &);
 
 private:
-	unsigned int x;
-	unsigned int y;
+	unsigned long x;
+	unsigned long y;
 };
 
+std::ostream &operator<<(std::ostream &os, const Coordinate &c);

@@ -1,7 +1,9 @@
+#include <iostream>
 #include "Plan.h"
 
 int main() {
-	Plan<400, 500> p;
+	Plan p("../inputData/charleston_road.in");
+	std::cout << p;
 	
 	return 0;
 }
