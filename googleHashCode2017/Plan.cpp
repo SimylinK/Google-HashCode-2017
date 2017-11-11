@@ -33,7 +33,7 @@ Plan::Plan(string inputFile){
 		backbones.push_back(Coordinate(stoul(splitLine[0]), stoul(splitLine[1])));
 
 		building = new char*[rows];
-		for (int i=0; i<rows; ++i){
+		for (unsigned int i=0; i<rows; ++i){
 			building[i] = new char[columns];
 		}
 
@@ -56,7 +56,7 @@ Plan::Plan(string inputFile){
 
 Plan::~Plan()
 {
-	for (int i=0; i<rows; ++i){
+	for (unsigned int i=0; i<rows; ++i){
 		delete [] building[i];
 	}
 	delete [] building;
@@ -73,10 +73,11 @@ vector<string> splitString(string str){
 }
 
 std::ostream &operator<<(std::ostream &os, const Plan &p) {
-	for (int i = 0; i < p.rows; ++i) {
-		for (int j = 0; j < p.columns; ++j) {
+	for (unsigned int i = 0; i < p.rows; ++i) {
+		for (unsigned int j = 0; j < p.columns; ++j) {
 			os << p.building[i][j];
 		}
 		os << endl;
 	}
+	return os;
 }
