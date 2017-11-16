@@ -5,13 +5,12 @@
 class Coordinate
 {
 public:
-	Coordinate(unsigned long x, unsigned long y);
+	Coordinate();
+	Coordinate(int x, int y);
 	~Coordinate();
 	friend std::ostream &operator<<(std::ostream &, const Coordinate &);
-
-private:
-	unsigned long x;
-	unsigned long y;
+	int x;
+	int y;
 };
 
 std::ostream &operator<<(std::ostream &os, const Coordinate &c);
