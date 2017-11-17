@@ -22,5 +22,6 @@ int main() {
 	p.sectorLink(listBarycentres, listRouters, money);
 
 	std::cout << p;
+	std::cout << "money : " << money << std::endl;
 	return 0;
 }

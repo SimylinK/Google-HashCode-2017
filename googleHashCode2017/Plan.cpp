@@ -247,8 +247,9 @@ std::ostream &operator<<(std::ostream &os, const Plan &p) {
 * @param a: the router from wich we will begin
 * @param b: the router wich is the destination
 * @param stopAtFirstWire: specify if the the function will stop when he reachs a wire
+* @param money: the money used until now, will be upadta during this method
 */
-void Plan::link(const Coordinate &a, const Coordinate &b, const bool &stopAtFirstWire) {
+void Plan::link(const Coordinate &a, const Coordinate &b, const bool &stopAtFirstWire, int &money) {
 	if (a != b) {
 		int deltaX = std::abs(b.x - a.x);
 		if (deltaX == 0) deltaX = 1;
@@ -265,6 +266,7 @@ void Plan::link(const Coordinate &a, const Coordinate &b, const bool &stopAtFirs
 			positionY += directionY;
 			if (stopAtFirstWire && this->building[positionX][positionY].isWired()) return;
 			addWire(Coordinate(positionX, positionY));
+			money += this->wireCost;
 		}
 		//Move horizontal
 		if (positionX == b.x) {
@@ -273,6 +275,7 @@ void Plan::link(const Coordinate &a, const Coordinate &b, const bool &stopAtFirs
 				positionY += directionY;
 				if (stopAtFirstWire && this->building[positionX][positionY].isWired()) return;
 				addWire(Coordinate(positionX, positionY));
+				money += this->wireCost;
 			}
 		}
 		//Move vertical
@@ -282,6 +285,7 @@ void Plan::link(const Coordinate &a, const Coordinate &b, const bool &stopAtFirs
 				positionX += directionX;
 				if (stopAtFirstWire && this->building[positionX][positionY].isWired()) return;
 				addWire(Coordinate(positionX, positionY));
+				money += this->wireCost;
 			}
 		}
 		else {
@@ -339,17 +343,18 @@ Coordinate& Plan::argDistMin(const Coordinate &point, const std::vector<Coordina
 * Connect a list of routers to one of the barycentres
 * @param listBarycentres: the barycentres where we connect the routers
 * @param initialListRouters: list of the rooters to connect to the network
+* @param money: the money used until now, will be upadta during this method
 */
 void Plan::sectorLink(const std::vector<Coordinate> &listBarycentres, const std::vector<Coordinate> &initialListRouters, int &money) {
 	Coordinate barycentre = computeBarycentre(initialListRouters);
 	Coordinate closestBarycentre = argDistMin(barycentre, listBarycentres);
-	link(closestBarycentre, barycentre, false);
+	link(closestBarycentre, barycentre, false, money);
 	
 	std::vector<Coordinate> routersToConnect = initialListRouters;
 
 	while (routersToConnect.size() > 0) {
 		std::vector<Coordinate> listConnectedRouters;
-		money = recursiveLink(routersToConnect[0], initialListRouters, money, barycentre, listConnectedRouters);
+		recursiveLink(routersToConnect[0], initialListRouters, money, barycentre, listConnectedRouters);
 
 		for each (Coordinate router in listConnectedRouters)
 		{
@@ -364,9 +369,11 @@ void Plan::sectorLink(const std::vector<Coordinate> &listBarycentres, const std:
 * Connect a router to the network
 * @param router: the router to be connected
 * @param listRouters: list of the routers to work with, the method remove the rooter used from this list
-* @return a pair with the money spent and a list with with the routers connected during this method
+* @param money: the money used until now, will be upadta during this method
+* @param barycentre: the barycentre of listRouters
+* @param listConnectedRouters: an empty list, this method will add all the routers connected during this method 
 */
-int& Plan::recursiveLink(const Coordinate &router, const std::vector<Coordinate> &listRouters, int &money, const Coordinate &barycentre, std::vector<Coordinate> &listConnectedRouters) {
+void Plan::recursiveLink(const Coordinate &router, const std::vector<Coordinate> &listRouters, int &money, const Coordinate &barycentre, std::vector<Coordinate> &listConnectedRouters) {
 	listConnectedRouters.push_back(router);
 	std::vector<Coordinate> listCoordinatesForLink = listRouters;
 
@@ -379,14 +386,12 @@ int& Plan::recursiveLink(const Coordinate &router, const std::vector<Coordinate>
 	Coordinate closestLinkablePoint = argDistMin(router, listCoordinatesForLink);
 
 	if (!building[closestLinkablePoint.x][closestLinkablePoint.y].isWired()) {
-		money = recursiveLink(closestLinkablePoint, listRouters, money, barycentre, listConnectedRouters);
+		recursiveLink(closestLinkablePoint, listRouters, money, barycentre, listConnectedRouters);
 	}
 
 	closestLinkablePoint = followWire(closestLinkablePoint, router);
 
-	link(closestLinkablePoint, router, true);
-
-	return money;
+	link(closestLinkablePoint, router, true, money);
 }
 
 /**
