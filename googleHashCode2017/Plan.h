@@ -39,7 +39,7 @@ public:
 	friend std::ostream &operator<<(std::ostream &os, const Plan &p);
 
 	// For the first solver
-	void link(const Coordinate &a, const Coordinate &b);
+	void link(const Coordinate &a, const Coordinate &b, const bool &stopAtFirstWire);
 	Coordinate& computeBarycentre(const std::vector<Coordinate> &listCoord);
 	Coordinate& argDistMin(const Coordinate &point, const std::vector<Coordinate> &listCoord);
 

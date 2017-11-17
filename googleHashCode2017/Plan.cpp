@@ -246,9 +246,9 @@ std::ostream &operator<<(std::ostream &os, const Plan &p) {
 * Connect 2 routers with wire
 * @param a: the router from wich we will begin
 * @param b: the router wich is the destination
+* @param stopAtFirstWire: specify if the the function will stop when he reachs a wire
 */
-//TODO ? : si croise un cable s'arréter car du coup il est connecté
-void Plan::link(const Coordinate &a, const Coordinate &b) {
+void Plan::link(const Coordinate &a, const Coordinate &b, const bool &stopAtFirstWire) {
 	if (a != b) {
 		int deltaX = std::abs(b.x - a.x);
 		if (deltaX == 0) deltaX = 1;
@@ -263,6 +263,7 @@ void Plan::link(const Coordinate &a, const Coordinate &b) {
 		for (int i = 0; i < min(deltaX, deltaY); i++) {
 			positionX += directionX;
 			positionY += directionY;
+			if (stopAtFirstWire && this->building[positionX][positionY].isWired()) return;
 			addWire(Coordinate(positionX, positionY));
 		}
 		//Move horizontal
@@ -270,6 +271,7 @@ void Plan::link(const Coordinate &a, const Coordinate &b) {
 			int newDeltaY = std::abs(b.y - positionY);
 			for (int i = 0; i < newDeltaY; i++) {
 				positionY += directionY;
+				if (stopAtFirstWire && this->building[positionX][positionY].isWired()) return;
 				addWire(Coordinate(positionX, positionY));
 			}
 		}
@@ -278,6 +280,7 @@ void Plan::link(const Coordinate &a, const Coordinate &b) {
 			int newDeltaX = std::abs(b.x - positionX);
 			for (int i = 0; i < newDeltaX; i++) {
 				positionX += directionX;
+				if (stopAtFirstWire && this->building[positionX][positionY].isWired()) return;
 				addWire(Coordinate(positionX, positionY));
 			}
 		}
@@ -340,7 +343,7 @@ Coordinate& Plan::argDistMin(const Coordinate &point, const std::vector<Coordina
 void Plan::sectorLink(const std::vector<Coordinate> &listBarycentres, const std::vector<Coordinate> &initialListRouters, int &money) {
 	Coordinate barycentre = computeBarycentre(initialListRouters);
 	Coordinate closestBarycentre = argDistMin(barycentre, listBarycentres);
-	link(closestBarycentre, barycentre);
+	link(closestBarycentre, barycentre, false);
 	
 	std::vector<Coordinate> routersToConnect = initialListRouters;
 
@@ -381,7 +384,7 @@ int& Plan::recursiveLink(const Coordinate &router, const std::vector<Coordinate>
 
 	closestLinkablePoint = followWire(closestLinkablePoint, router);
 
-	link(closestLinkablePoint, router);
+	link(closestLinkablePoint, router, true);
 
 	return money;
 }
