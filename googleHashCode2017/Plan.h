@@ -29,6 +29,9 @@ public:
 	inline int getRouterCost(){return routerCost;}
 	inline int getMaxBudget(){return maxBudget;}
 
+	inline std::vector<Coordinate> getWires() { return wires; }
+	inline std::vector<Coordinate> getRouters() { return routers; }
+
 	void addRouter(Coordinate &c);
 	void addBackbone(Coordinate &c);
 	std::vector<Cell> reachableCells(const Coordinate &c);
