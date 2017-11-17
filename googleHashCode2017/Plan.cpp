@@ -154,8 +154,9 @@ void Plan::addRouter(Coordinate &c) {
 
 }
 
-void Plan::addBackbone(Coordinate &c) {
+void Plan::addWire(Coordinate &c) {
 	wires.push_back(c);
+	building[c.x][c.y].setWired(true);
 }
 
 /**
@@ -238,4 +239,229 @@ std::ostream &operator<<(std::ostream &os, const Plan &p) {
 		os << endl;
 	}
 	return os;
+}
+
+
+/**
+* Connect 2 routers with wire
+* @param a: the router from wich we will begin
+* @param b: the router wich is the destination
+*/
+//TODO ? : si croise un cable s'arréter car du coup il est connecté
+void Plan::link(const Coordinate &a, const Coordinate &b) {
+	if (a != b) {
+		int deltaX = std::abs(b.x - a.x);
+		if (deltaX == 0) deltaX = 1;
+		int deltaY = std::abs(b.y - a.y);
+		if (deltaY == 0) deltaY = 1;
+		int directionX = (b.x - a.x) / deltaX;
+		int directionY = (b.y - a.y) / deltaY;
+
+		int positionX = a.x;
+		int positionY = a.y;
+		// Move diagonal
+		for (int i = 0; i < min(deltaX, deltaY); i++) {
+			positionX += directionX;
+			positionY += directionY;
+			addWire(Coordinate(positionX, positionY));
+		}
+		//Move horizontal
+		if (positionX == b.x) {
+			int newDeltaY = std::abs(b.y - positionY);
+			for (int i = 0; i < newDeltaY; i++) {
+				positionY += directionY;
+				addWire(Coordinate(positionX, positionY));
+			}
+		}
+		//Move vertical
+		else if (positionY == b.y) {
+			int newDeltaX = std::abs(b.x - positionX);
+			for (int i = 0; i < newDeltaX; i++) {
+				positionX += directionX;
+				addWire(Coordinate(positionX, positionY));
+			}
+		}
+		else {
+			throw std::exception("Plan::link la fonction n'a pas réussi à placer les cables");
+		}
+	}
+}
+
+
+/**
+* Find the barycentre of a list of Coordinate
+* @param listCoord: the list of Coordinate from which to find the barycentre
+* @return the barycentre of the list
+*/
+Coordinate& Plan::computeBarycentre(const std::vector<Coordinate> &listCoord) {
+	int baryX = 0;
+	int baryY = 0;
+
+	for (Coordinate coord : listCoord) {
+		baryX += coord.x;
+		baryY += coord.y;
+	}
+	baryX /= listCoord.size();
+	baryY /= listCoord.size();
+
+	return Coordinate(baryX, baryY);
+}
+
+
+
+/**
+* Find the coordinate object in a list that minimizes the distance with a coordinate object passed as parameter
+* @param point: the point to minimize the distance with
+* @param listCoord: a list of the points to minize the distance with
+* @return the Coordinate with the minimal distance to the point
+*/
+Coordinate& Plan::argDistMin(const Coordinate &point, const std::vector<Coordinate> &listCoord) {
+	if (listCoord.size() == 0) throw std::exception("Plan::argDistMin : La liste est vide");
+
+	int min = distance(point, listCoord[0]);
+	Coordinate argMin = listCoord[0];
+
+	for (int index = 0; index < listCoord.size(); index++)
+	{
+		int dist = distance(point, listCoord[index]);
+		if (dist < min) {
+			min = dist;
+			argMin = listCoord[index];
+		}
+	}
+	return argMin;
+}
+
+/**
+* Connect a list of routers to one of the barycentres
+* @param listBarycentres: the barycentres where we connect the routers
+* @param initialListRouters: list of the rooters to connect to the network
+*/
+void Plan::sectorLink(const std::vector<Coordinate> &listBarycentres, const std::vector<Coordinate> &initialListRouters, int &money) {
+	Coordinate barycentre = computeBarycentre(initialListRouters);
+	Coordinate closestBarycentre = argDistMin(barycentre, listBarycentres);
+	link(closestBarycentre, barycentre);
+	
+	std::vector<Coordinate> routersToConnect = initialListRouters;
+
+	while (routersToConnect.size() > 0) {
+		std::vector<Coordinate> listConnectedRouters;
+		money = recursiveLink(routersToConnect[0], initialListRouters, money, barycentre, listConnectedRouters);
+
+		for each (Coordinate router in listConnectedRouters)
+		{
+			eraseFromVector(routersToConnect, router);
+		}
+	}
+	
+}
+
+
+/**
+* Connect a router to the network
+* @param router: the router to be connected
+* @param listRouters: list of the routers to work with, the method remove the rooter used from this list
+* @return a pair with the money spent and a list with with the routers connected during this method
+*/
+int& Plan::recursiveLink(const Coordinate &router, const std::vector<Coordinate> &listRouters, int &money, const Coordinate &barycentre, std::vector<Coordinate> &listConnectedRouters) {
+	listConnectedRouters.push_back(router);
+	std::vector<Coordinate> listCoordinatesForLink = listRouters;
+
+	// Remove the router from  listCoordinatesForLink
+	eraseFromVector(listCoordinatesForLink, router);
+
+	listCoordinatesForLink.push_back(barycentre);
+
+	// Find closest point to link
+	Coordinate closestLinkablePoint = argDistMin(router, listCoordinatesForLink);
+
+	if (!building[closestLinkablePoint.x][closestLinkablePoint.y].isWired()) {
+		money = recursiveLink(closestLinkablePoint, listRouters, money, barycentre, listConnectedRouters);
+	}
+
+	closestLinkablePoint = followWire(closestLinkablePoint, router);
+
+	link(closestLinkablePoint, router);
+
+	return money;
+}
+
+/**
+* Find the closest connected point from a router to another
+* @param startRouter: a router already connected
+* @param targetRouter: the router to get closer from
+* @return the coordinate of the connected point closest to the target
+*/
+Coordinate& Plan::followWire(const Coordinate &startRouter, const Coordinate &targetRouter) {
+	Coordinate closestPoint = startRouter;
+
+	// Try to get closer with the wires
+	bool canGetCloser = true;
+	Coordinate betterCoord1;
+	Coordinate betterCoord2;
+	Coordinate betterCoord3;
+
+	do {
+		// Get the 3 adjacent coordinates of closestPoint closer to the routeur
+		if (closestPoint.x > targetRouter.x) {
+			betterCoord1 = Coordinate(closestPoint.x - 1, closestPoint.y);
+			if (closestPoint.y > targetRouter.y) {
+				betterCoord2 = Coordinate(closestPoint.x - 1, closestPoint.y - 1);
+				betterCoord3 = Coordinate(closestPoint.x, closestPoint.y - 1);
+			}
+			else if (closestPoint.y < targetRouter.y) {
+				betterCoord2 = Coordinate(closestPoint.x - 1, closestPoint.y + 1);
+				betterCoord3 = Coordinate(closestPoint.x, closestPoint.y + 1);
+			}
+			else if (closestPoint.y == targetRouter.y) {
+				betterCoord2 = Coordinate(closestPoint.x - 1, closestPoint.y + 1);
+				betterCoord3 = Coordinate(closestPoint.x - 1, closestPoint.y - 1);
+			}
+		}
+		else if (closestPoint.x < targetRouter.x) {
+			betterCoord1 = Coordinate(closestPoint.x + 1, closestPoint.y);
+			if (closestPoint.y > targetRouter.y) {
+				betterCoord2 = Coordinate(closestPoint.x + 1, closestPoint.y - 1);
+				betterCoord3 = Coordinate(closestPoint.x, closestPoint.y - 1);
+			}
+			else if (closestPoint.y < targetRouter.y) {
+				betterCoord2 = Coordinate(closestPoint.x + 1, closestPoint.y + 1);
+				betterCoord3 = Coordinate(closestPoint.x, closestPoint.y + 1);
+			}
+			else if (closestPoint.y == targetRouter.y) {
+				betterCoord2 = Coordinate(closestPoint.x + 1, closestPoint.y + 1);
+				betterCoord3 = Coordinate(closestPoint.x + 1, closestPoint.y - 1);
+			}
+		}
+		else if (closestPoint.x == targetRouter.x) {
+			if (closestPoint.y > targetRouter.y) {
+				betterCoord1 = Coordinate(closestPoint.x + 1, closestPoint.y - 1);
+				betterCoord2 = Coordinate(closestPoint.x, closestPoint.y - 1);
+				betterCoord3 = Coordinate(closestPoint.x - 1, closestPoint.y - 1);
+			}
+			else if (closestPoint.y < targetRouter.y) {
+				betterCoord1 = Coordinate(closestPoint.x + 1, closestPoint.y + 1);
+				betterCoord2 = Coordinate(closestPoint.x, closestPoint.y + 1);
+				betterCoord3 = Coordinate(closestPoint.x - 1, closestPoint.y + 1);
+			}
+			else {
+				canGetCloser = false;
+			}
+		}
+		// Check if there is a wire at one of the 3 coordinates
+		if (building[betterCoord1.x][betterCoord1.y].isWired()) closestPoint = betterCoord1;
+		else if (building[betterCoord2.x][betterCoord2.y].isWired()) closestPoint = betterCoord2;
+		else if (building[betterCoord3.x][betterCoord3.y].isWired()) closestPoint = betterCoord3;
+		else canGetCloser = false;
+
+	} while (canGetCloser);
+
+	return closestPoint;
+}
+
+
+void Plan::eraseFromVector(std::vector<Coordinate> &vector, const Coordinate &coord) {
+	std::vector<Coordinate>::iterator it;
+	it = std::find(vector.begin(), vector.end(), coord);
+	vector.erase(it);
 }
