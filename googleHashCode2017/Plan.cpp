@@ -246,10 +246,9 @@ std::ostream &operator<<(std::ostream &os, const Plan &p) {
 * Connect 2 routers with wire
 * @param a: the router from wich we will begin
 * @param b: the router wich is the destination
-* @param stopAtFirstWire: specify if the the function will stop when he reachs a wire
 * @param money: the money used until now, will be upadta during this method
 */
-void Plan::link(const Coordinate &a, const Coordinate &b, const bool &stopAtFirstWire, int &money) {
+void Plan::link(const Coordinate &a, const Coordinate &b, int &money) {
 	if (a != b) {
 		int deltaX = std::abs(b.x - a.x);
 		if (deltaX == 0) deltaX = 1;
@@ -261,21 +260,28 @@ void Plan::link(const Coordinate &a, const Coordinate &b, const bool &stopAtFirs
 		int positionX = a.x;
 		int positionY = a.y;
 		// Move diagonal
+		vector<Coordinate> wiresToAdd;
 		for (int i = 0; i < min(deltaX, deltaY); i++) {
 			positionX += directionX;
 			positionY += directionY;
-			if (stopAtFirstWire && this->building[positionX][positionY].isWired()) return;
-			addWire(Coordinate(positionX, positionY));
-			money += this->wireCost;
+			if (this->building[positionX][positionY].isWired()) {
+				wiresToAdd.clear();
+			}
+			else {
+				wiresToAdd.push_back(Coordinate(positionX, positionY));
+			}
 		}
 		//Move horizontal
 		if (positionX == b.x) {
 			int newDeltaY = std::abs(b.y - positionY);
 			for (int i = 0; i < newDeltaY; i++) {
 				positionY += directionY;
-				if (stopAtFirstWire && this->building[positionX][positionY].isWired()) return;
-				addWire(Coordinate(positionX, positionY));
-				money += this->wireCost;
+				if (this->building[positionX][positionY].isWired()) {
+					wiresToAdd.clear();
+				}
+				else {
+					wiresToAdd.push_back(Coordinate(positionX, positionY));
+				}
 			}
 		}
 		//Move vertical
@@ -283,13 +289,22 @@ void Plan::link(const Coordinate &a, const Coordinate &b, const bool &stopAtFirs
 			int newDeltaX = std::abs(b.x - positionX);
 			for (int i = 0; i < newDeltaX; i++) {
 				positionX += directionX;
-				if (stopAtFirstWire && this->building[positionX][positionY].isWired()) return;
-				addWire(Coordinate(positionX, positionY));
-				money += this->wireCost;
+				if (this->building[positionX][positionY].isWired()) {
+					wiresToAdd.clear();
+				}
+				else {
+					wiresToAdd.push_back(Coordinate(positionX, positionY));
+				}
 			}
 		}
 		else {
 			throw std::exception("Plan::link la fonction n'a pas réussi à placer les cables");
+		}
+
+		for each (Coordinate wire in wiresToAdd)
+		{
+			this->addWire(wire);
+			money += this->wireCost;
 		}
 	}
 }
@@ -348,7 +363,7 @@ Coordinate& Plan::argDistMin(const Coordinate &point, const std::vector<Coordina
 void Plan::sectorLink(const std::vector<Coordinate> &listBarycentres, const std::vector<Coordinate> &initialListRouters, int &money) {
 	Coordinate barycentre = computeBarycentre(initialListRouters);
 	Coordinate closestBarycentre = argDistMin(barycentre, listBarycentres);
-	link(closestBarycentre, barycentre, false, money);
+	link(closestBarycentre, barycentre, money);
 	
 	std::vector<Coordinate> routersToConnect = initialListRouters;
 
@@ -391,7 +406,7 @@ void Plan::recursiveLink(const Coordinate &router, const std::vector<Coordinate>
 
 	closestLinkablePoint = followWire(closestLinkablePoint, router);
 
-	link(closestLinkablePoint, router, true, money);
+	link(closestLinkablePoint, router, money);
 }
 
 /**
