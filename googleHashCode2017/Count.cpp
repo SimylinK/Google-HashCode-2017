@@ -1,4 +1,5 @@
 #include"Count.h"
+
 Count::Count() {
 	start = GetTickCount();
 	frequency = 0;

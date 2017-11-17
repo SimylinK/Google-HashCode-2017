@@ -24,6 +24,7 @@ for (int i = 0; i < 2; i++)
 
 ct.getAverageRunningTime();// use it it the end
 */
+
 class Count {
 public:
 	Count();
