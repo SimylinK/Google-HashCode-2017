@@ -19,7 +19,7 @@ int main() {
 	std::vector<Coordinate> listBarycentres{ Coordinate(1,1) };
 	std::vector<Coordinate> listRouters{Coordinate(3,2), Coordinate(4,5), Coordinate(8,1)};
 
-	p.sectorLink(listBarycentres, listRouters, money);
+	sectorLink(p, listBarycentres, listRouters, money);
 
 	std::cout << p;
 	std::cout << "money : " << money << std::endl;

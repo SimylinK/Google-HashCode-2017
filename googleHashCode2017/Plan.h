@@ -31,6 +31,8 @@ public:
 	inline int getRouterCost(){return routerCost;}
 	inline int getMaxBudget(){return maxBudget;}
 
+	inline bool isWired(const Coordinate &coord) { return building[coord.x][coord.y].isWired(); };
+
 	void addRouter(Coordinate &c);
 	void addWire(Coordinate &c);
 	std::vector<Cell> reachableCells(const Coordinate &c);
@@ -38,15 +40,8 @@ public:
 
 	friend std::ostream &operator<<(std::ostream &os, const Plan &p);
 
-	// For the first solver
 	void link(const Coordinate &a, const Coordinate &b, int &money);
-	Coordinate& computeBarycentre(const std::vector<Coordinate> &listCoord);
-	Coordinate& argDistMin(const Coordinate &point, const std::vector<Coordinate> &listCoord);
 
-	void sectorLink(const std::vector<Coordinate> &listBarycentres, const std::vector<Coordinate> &initialListRouters, int &money);
-	void recursiveLink(const Coordinate &router, const std::vector<Coordinate> &listRouters, int &money, const Coordinate &barycentre, std::vector<Coordinate> &listConnectedRouters);
-	Coordinate& followWire(const Coordinate &startRouter, const Coordinate &targetRouter);
-	void eraseFromVector(std::vector<Coordinate> &vector, const Coordinate &coord);
 
 private :
 	int rows;
