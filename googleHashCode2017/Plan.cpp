@@ -159,6 +159,48 @@ void Plan::addWire(Coordinate &c) {
 	building[c.x][c.y].setWired(true);
 }
 
+void Plan::removeRouters(int nbRouterSector, int nbWires) {
+
+	//Remove the routers
+	Coordinate c;
+	int i = 0;
+	while(i<nbRouterSector && routers.size()>0){
+		
+		c = this->routers.back();
+		if (this->building[c.x][c.y].hasRouter() == true) {
+			this->building[c.x][c.y].setRouter(false);
+			std::vector<Cell> &reachCell = this->reachableCells(c);
+			for (auto it = reachCell.begin(); it != reachCell.end(); it++) {
+				this->building[it->getCoordinate().x][it->getCoordinate().y].setCovered(false);
+			}
+
+		}
+		else {
+			throw std::exception("Plan::removeRouters :Tried to remove a router where there was not");
+		}		
+		this->routers.pop_back();
+		i++;
+	}
+	
+	i = 0;
+	//Remove the wires
+	std::cout << "Removing " << nbWires << " wires" << std::endl;
+	while (i<nbWires && wires.size()>0){
+		c = this->wires.back();
+		//std::cout << c;
+		if (this->building[c.x][c.y].isWired() == true) {
+			this->building[c.x][c.y].setWired(false);
+		}
+		else {
+			throw std::exception("Plan::removeRouters :Tried to remove a wire where there was not");
+		}
+		this->wires.pop_back();
+		std::cout << c <<" ";
+	}
+	std::cout << std::endl;
+}
+
+
 /**
  *
  * @param router: coordinate where to place a router. If coordinate isn't a target cell, return is empty.
@@ -249,6 +291,8 @@ std::ostream &operator<<(std::ostream &os, const Plan &p) {
 * @param money: the money used until now, will be upadta during this method
 */
 void Plan::link(const Coordinate &a, const Coordinate &b, int &money) {
+
+	//std::cout << "Linking : " << a << " to " << b;
 	if (a != b) {
 		int deltaX = std::abs(b.x - a.x);
 		if (deltaX == 0) deltaX = 1;
@@ -269,6 +313,7 @@ void Plan::link(const Coordinate &a, const Coordinate &b, int &money) {
 			}
 			else {
 				wiresToAdd.push_back(Coordinate(positionX, positionY));
+				//std::cout << Coordinate(positionX, positionY);
 			}
 		}
 		//Move horizontal
@@ -281,6 +326,7 @@ void Plan::link(const Coordinate &a, const Coordinate &b, int &money) {
 				}
 				else {
 					wiresToAdd.push_back(Coordinate(positionX, positionY));
+					//std::cout << Coordinate(positionX, positionY);
 				}
 			}
 		}
@@ -294,6 +340,7 @@ void Plan::link(const Coordinate &a, const Coordinate &b, int &money) {
 				}
 				else {
 					wiresToAdd.push_back(Coordinate(positionX, positionY));
+					//std::cout << Coordinate(positionX, positionY);
 				}
 			}
 		}

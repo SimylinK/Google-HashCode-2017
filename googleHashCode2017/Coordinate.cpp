@@ -12,7 +12,7 @@ Coordinate::~Coordinate()
 }
 
 std::ostream &operator<<(std::ostream &os, const Coordinate &c) {
-	os << "(" << c.x << ", " << c.y << ")" << std::endl;
+	os << "(" << c.x << ", " << c.y << ")";
 	return os;
 }
 

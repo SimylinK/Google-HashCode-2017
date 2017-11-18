@@ -11,15 +11,21 @@ int main() {
 	Coordinate router1 = Coordinate(3,2);
 	Coordinate router2 = Coordinate(4,5);
 	Coordinate router3 = Coordinate(8,1);
-	p.addRouter(router1);
-	p.addRouter(router2);
-	p.addRouter(router3);
+	//p.addRouter(router1);
+	//p.addRouter(router2);
+	//p.addRouter(router3);
 
 	int money = 0;
 	std::vector<Coordinate> listBarycentres{ Coordinate(1,1) };
 	std::vector<Coordinate> listRouters{Coordinate(3,2), Coordinate(4,5), Coordinate(8,1)};
 
-	sectorLink(p, listBarycentres, listRouters, money);
+	std::cout <<"MaxBudget : "<< p.getMaxBudget() << std::endl;
+	std::cout <<"Router cost "<< p.getRouterCost() << std::endl;
+	std::cout <<"Wire cost " <<p.getWireCost() << std::endl;
+	//placeRoutersIterative(p, 10);
+	//sectorLink(p, listBarycentres, listRouters, money);
+	solveProblem(p, 22);
+
 
 	std::cout << p;
 	std::cout << "money : " << money << std::endl;
