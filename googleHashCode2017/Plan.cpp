@@ -159,6 +159,11 @@ void Plan::addWire(Coordinate &c) {
 	building[c.x][c.y].setWired(true);
 }
 
+/**
+* Remove a number of routers and wires from the calling plan
+* @param nbRouterSector: the number of routers to remove
+* @param nbWires: the number of wires to remove
+*/
 void Plan::removeRouters(int nbRouterSector, int nbWires) {
 
 	//Remove the routers
@@ -184,7 +189,6 @@ void Plan::removeRouters(int nbRouterSector, int nbWires) {
 	
 	i = 0;
 	//Remove the wires
-	std::cout << "Removing " << nbWires << " wires" << std::endl;
 	while (i<nbWires && wires.size()>0){
 		c = this->wires.back();
 		//std::cout << c;
@@ -195,9 +199,8 @@ void Plan::removeRouters(int nbRouterSector, int nbWires) {
 			throw std::exception("Plan::removeRouters :Tried to remove a wire where there was not");
 		}
 		this->wires.pop_back();
-		std::cout << c <<" ";
+		i++;
 	}
-	std::cout << std::endl;
 }
 
 
@@ -292,7 +295,6 @@ std::ostream &operator<<(std::ostream &os, const Plan &p) {
 */
 void Plan::link(const Coordinate &a, const Coordinate &b, int &money) {
 
-	//std::cout << "Linking : " << a << " to " << b;
 	if (a != b) {
 		int deltaX = std::abs(b.x - a.x);
 		if (deltaX == 0) deltaX = 1;
@@ -313,7 +315,6 @@ void Plan::link(const Coordinate &a, const Coordinate &b, int &money) {
 			}
 			else {
 				wiresToAdd.push_back(Coordinate(positionX, positionY));
-				//std::cout << Coordinate(positionX, positionY);
 			}
 		}
 		//Move horizontal
@@ -326,7 +327,6 @@ void Plan::link(const Coordinate &a, const Coordinate &b, int &money) {
 				}
 				else {
 					wiresToAdd.push_back(Coordinate(positionX, positionY));
-					//std::cout << Coordinate(positionX, positionY);
 				}
 			}
 		}
@@ -340,14 +340,12 @@ void Plan::link(const Coordinate &a, const Coordinate &b, int &money) {
 				}
 				else {
 					wiresToAdd.push_back(Coordinate(positionX, positionY));
-					//std::cout << Coordinate(positionX, positionY);
 				}
 			}
 		}
 		else {
 			throw std::exception("Plan::link la fonction n'a pas réussi à placer les cables");
 		}
-
 		for each (Coordinate wire in wiresToAdd)
 		{
 			this->addWire(wire);

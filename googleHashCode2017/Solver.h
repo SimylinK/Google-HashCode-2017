@@ -4,8 +4,6 @@
 #include "Plan.h"
 
 
-void solveProblem(Plan &p, int nbRouterSector);
-
 void placeRoutersIterative(Plan &p, std::vector<Coordinate>& sectorRouters, int n, int& spentMoney);
 
 // For the first solver solution
@@ -25,7 +23,7 @@ Coordinate followWire(Plan &plan, const Coordinate &startRouter, const Coordinat
 
 void eraseFromVector(std::vector<Coordinate> &vector, const Coordinate &coord);
 void eraseFromVector(std::vector<Coordinate> &vector, std::vector<Coordinate> &vectorToRemove);
-void solveProblem(Plan &p, int nbRouterSector);
+int solveProblem(Plan &p, int nbRouterSector);
 
 std::ostream& operator<<(std::ostream& o, std::vector<Coordinate> &vector);
 

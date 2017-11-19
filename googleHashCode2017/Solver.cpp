@@ -5,9 +5,9 @@
 * Position and link and network of routers on a plan to maximise the number of covered cells
 * @param p: the plan to position the routers on
 * @param nbRouterSector: the maximum number of routers in a sector
-
+* @return the money spent
 */
-void solveProblem(Plan &p, int nbRouterSector){
+int solveProblem(Plan &p, int nbRouterSector){
 
 	int spentMoney = 0;
 	int lastNbWireSector; //The number of wires that was required to link a sector
@@ -26,48 +26,39 @@ void solveProblem(Plan &p, int nbRouterSector){
 		//Position routers
 		sectorRouters.clear();
 		placeRoutersIterative(p, sectorRouters,nbRouterSector,spentMoney);
-		
 		if (sectorRouters.size()!=0){
+
+			std::cout << "Positioning wires" << std::endl;
+			//Position wires
+
+			lastSpentMoney = spentMoney;
 
 			std::vector<Coordinate> listConnectedRouters;
 
 			currentBary = computeBarycentre(sectorRouters);
 			closestBackboneRouter = argDistMin(p.getBackbone(), sectorRouters);
 			listBarycentres.push_back(currentBary);
-			//std::cout << "Barycentre : " << currentBary << std::endl;
 
 			if (distance(closestBackboneRouter, p.getBackbone()) < distance(currentBary, p.getBackbone())){
 				p.link(p.getBackbone(), closestBackboneRouter, spentMoney);
 				recursiveLink(p, closestBackboneRouter, sectorRouters, spentMoney, currentBary, listConnectedRouters,true);
-				nbFirstWires = distance(p.getBackbone(), closestBackboneRouter);
 			}
 			else {
 				p.link(p.getBackbone(), currentBary, spentMoney);
-				nbFirstWires = distance(p.getBackbone(), currentBary);
 			}
 
-			std::cout << "Positioning wires" << std::endl;
-			//Position wires
-
-			std::cout << "SpentMoney : " << spentMoney << std::endl;
-			lastSpentMoney = spentMoney;
 
 			sectorLink(p, listBarycentres, sectorRouters, spentMoney, listConnectedRouters,false);
 			lastNbWireSector = (spentMoney - lastSpentMoney) / p.getWireCost();
 
-			std::cout << "First Wires : " << nbFirstWires << std::endl;
-			std::cout << "Positioned " << lastNbWireSector << " wires" << std::endl;
-			std::cout << "Spent money on placing cables :  " << spentMoney - lastSpentMoney << std::endl;
-
-			
 			if (spentMoney > p.getMaxBudget()) {
-				
-				
-				p.removeRouters(nbRouterSector, lastNbWireSector+nbFirstWires);
-				spentMoney -= nbRouterSector*p.getRouterCost() + (lastNbWireSector+nbFirstWires)*p.getWireCost();
+						
+				p.removeRouters(nbRouterSector, lastNbWireSector);
+				spentMoney -= nbRouterSector*p.getRouterCost() + (lastNbWireSector)*p.getWireCost();
 				nbRouterSector--;
 			}
 
+			return spentMoney;
 		}
 	//If there's not enough money to place one router
 	//or if there's no place any more to position a router, then the algorithm stops.
@@ -160,11 +151,7 @@ Coordinate argDistMin(const Coordinate &point, const std::vector<Coordinate> &li
 void sectorLink(Plan &plan, const std::vector<Coordinate> &listBarycentres, std::vector<Coordinate> &initialListRouters,
 														int &money, std::vector<Coordinate> & listConnectedRouters, 
 														bool reversedMode) {
-	//std::cout << "Router already connected : " << std::endl;
-	//for (Coordinate c : listConnectedRouters){
-	//	std::cout << c << " ";
-	//}
-	//std::cout << std::endl;
+
 	Coordinate barycentre = computeBarycentre(initialListRouters);
 	Coordinate closestBarycentre = argDistMin(barycentre, listBarycentres);
 	plan.link(closestBarycentre, barycentre, money);
@@ -202,20 +189,12 @@ void recursiveLink(Plan &plan, const Coordinate &router, const std::vector<Coord
 	eraseFromVector(listCoordinatesForLink, router);
 	//eraseFromVector(listCoordinatesForLink, listConnectedRouters);
 
-	//std::cout << "Current router : " << router;
-	//for (Coordinate c : listCoordinatesForLink) {
-	//	std::cout << c << std::endl;
-	//}
-
-
-
 	listCoordinatesForLink.push_back(barycentre);
 
 	// Find closest point to link
 	Coordinate closestLinkablePoint = argDistMin(router, listCoordinatesForLink);
 
 	if (reversedMode == true) {
-
 		closestLinkablePoint = followWire(plan, closestLinkablePoint, router);
 		plan.link(router, closestLinkablePoint,money);
 	}
@@ -240,68 +219,72 @@ void recursiveLink(Plan &plan, const Coordinate &router, const std::vector<Coord
 * @return the coordinate of the connected point closest to the target
 */
 Coordinate followWire(Plan &plan, const Coordinate &startRouter, const Coordinate &targetRouter) {
+
+
 	Coordinate closestPoint = startRouter;
 
-	// Try to get closer with the wires
-	bool canGetCloser = true;
-	Coordinate betterCoord1;
-	Coordinate betterCoord2;
-	Coordinate betterCoord3;
+	if (plan.isWired(startRouter)) { //If the point is not wired, it cannot get closer
+		// Try to get closer with the wires
+		bool canGetCloser = true;
+		Coordinate betterCoord1;
+		Coordinate betterCoord2;
+		Coordinate betterCoord3;
 
-	do {
-		// Get the 3 adjacent coordinates of closestPoint closer to the routeur
-		if (closestPoint.x > targetRouter.x) {
-			betterCoord1 = Coordinate(closestPoint.x - 1, closestPoint.y);
-			if (closestPoint.y > targetRouter.y) {
-				betterCoord2 = Coordinate(closestPoint.x - 1, closestPoint.y - 1);
-				betterCoord3 = Coordinate(closestPoint.x, closestPoint.y - 1);
+		do {
+			// Get the 3 adjacent coordinates of closestPoint closer to the routeur
+			if (closestPoint.x > targetRouter.x) {
+				betterCoord1 = Coordinate(closestPoint.x - 1, closestPoint.y);
+				if (closestPoint.y > targetRouter.y) {
+					betterCoord2 = Coordinate(closestPoint.x - 1, closestPoint.y - 1);
+					betterCoord3 = Coordinate(closestPoint.x, closestPoint.y - 1);
+				}
+				else if (closestPoint.y < targetRouter.y) {
+					betterCoord2 = Coordinate(closestPoint.x - 1, closestPoint.y + 1);
+					betterCoord3 = Coordinate(closestPoint.x, closestPoint.y + 1);
+				}
+				else if (closestPoint.y == targetRouter.y) {
+					betterCoord2 = Coordinate(closestPoint.x - 1, closestPoint.y + 1);
+					betterCoord3 = Coordinate(closestPoint.x - 1, closestPoint.y - 1);
+				}
 			}
-			else if (closestPoint.y < targetRouter.y) {
-				betterCoord2 = Coordinate(closestPoint.x - 1, closestPoint.y + 1);
-				betterCoord3 = Coordinate(closestPoint.x, closestPoint.y + 1);
+			else if (closestPoint.x < targetRouter.x) {
+				betterCoord1 = Coordinate(closestPoint.x + 1, closestPoint.y);
+				if (closestPoint.y > targetRouter.y) {
+					betterCoord2 = Coordinate(closestPoint.x + 1, closestPoint.y - 1);
+					betterCoord3 = Coordinate(closestPoint.x, closestPoint.y - 1);
+				}
+				else if (closestPoint.y < targetRouter.y) {
+					betterCoord2 = Coordinate(closestPoint.x + 1, closestPoint.y + 1);
+					betterCoord3 = Coordinate(closestPoint.x, closestPoint.y + 1);
+				}
+				else if (closestPoint.y == targetRouter.y) {
+					betterCoord2 = Coordinate(closestPoint.x + 1, closestPoint.y + 1);
+					betterCoord3 = Coordinate(closestPoint.x + 1, closestPoint.y - 1);
+				}
 			}
-			else if (closestPoint.y == targetRouter.y) {
-				betterCoord2 = Coordinate(closestPoint.x - 1, closestPoint.y + 1);
-				betterCoord3 = Coordinate(closestPoint.x - 1, closestPoint.y - 1);
+			else if (closestPoint.x == targetRouter.x) {
+				if (closestPoint.y > targetRouter.y) {
+					betterCoord1 = Coordinate(closestPoint.x + 1, closestPoint.y - 1);
+					betterCoord2 = Coordinate(closestPoint.x, closestPoint.y - 1);
+					betterCoord3 = Coordinate(closestPoint.x - 1, closestPoint.y - 1);
+				}
+				else if (closestPoint.y < targetRouter.y) {
+					betterCoord1 = Coordinate(closestPoint.x + 1, closestPoint.y + 1);
+					betterCoord2 = Coordinate(closestPoint.x, closestPoint.y + 1);
+					betterCoord3 = Coordinate(closestPoint.x - 1, closestPoint.y + 1);
+				}
+				else {
+					canGetCloser = false;
+				}
 			}
-		}
-		else if (closestPoint.x < targetRouter.x) {
-			betterCoord1 = Coordinate(closestPoint.x + 1, closestPoint.y);
-			if (closestPoint.y > targetRouter.y) {
-				betterCoord2 = Coordinate(closestPoint.x + 1, closestPoint.y - 1);
-				betterCoord3 = Coordinate(closestPoint.x, closestPoint.y - 1);
-			}
-			else if (closestPoint.y < targetRouter.y) {
-				betterCoord2 = Coordinate(closestPoint.x + 1, closestPoint.y + 1);
-				betterCoord3 = Coordinate(closestPoint.x, closestPoint.y + 1);
-			}
-			else if (closestPoint.y == targetRouter.y) {
-				betterCoord2 = Coordinate(closestPoint.x + 1, closestPoint.y + 1);
-				betterCoord3 = Coordinate(closestPoint.x + 1, closestPoint.y - 1);
-			}
-		}
-		else if (closestPoint.x == targetRouter.x) {
-			if (closestPoint.y > targetRouter.y) {
-				betterCoord1 = Coordinate(closestPoint.x + 1, closestPoint.y - 1);
-				betterCoord2 = Coordinate(closestPoint.x, closestPoint.y - 1);
-				betterCoord3 = Coordinate(closestPoint.x - 1, closestPoint.y - 1);
-			}
-			else if (closestPoint.y < targetRouter.y) {
-				betterCoord1 = Coordinate(closestPoint.x + 1, closestPoint.y + 1);
-				betterCoord2 = Coordinate(closestPoint.x, closestPoint.y + 1);
-				betterCoord3 = Coordinate(closestPoint.x - 1, closestPoint.y + 1);
-			}
-			else {
-				canGetCloser = false;
-			}
-		}
-		// Check if there is a wire at one of the 3 coordinates
-		if (plan.isWired(Coordinate(betterCoord1.x, betterCoord1.y))) closestPoint = betterCoord1;
-		else if (plan.isWired(Coordinate(betterCoord2.x, betterCoord2.y))) closestPoint = betterCoord2;
-		else if (plan.isWired(Coordinate(betterCoord2.x, betterCoord2.y))) closestPoint = betterCoord3;
-		else canGetCloser = false;
+			// Check if there is a wire at one of the 3 coordinates
+			if (plan.isWired(Coordinate(betterCoord1.x, betterCoord1.y))) closestPoint = betterCoord1;
+			else if (plan.isWired(Coordinate(betterCoord2.x, betterCoord2.y))) closestPoint = betterCoord2;
+			else if (plan.isWired(Coordinate(betterCoord2.x, betterCoord2.y))) closestPoint = betterCoord3;
+			else canGetCloser = false;
 
-	} while (canGetCloser);
+		} while (canGetCloser);
+	}
 
 	return closestPoint;
 }
