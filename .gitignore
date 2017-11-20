@@ -2,3 +2,13 @@
 #################
 x64
 Debug
+googleHashCode2017.VC.db
+googleHashCode2017.VC.VC.db
+
+# Output
+Outputfile.out
+
+# CLion
+cmake-build-debug/
+.idea/
+CMakeLists.txt
