@@ -10,7 +10,7 @@ void output(Plan plan, std::string outputPath) {
 	outputFile.open(outputPath, std::ofstream::out);
 
 	if (outputFile.bad()) {
-		throw new std::exception("Cannot open output file.");
+		throw new std::exception();
 	}
 
 	outputFile << plan.getWires().size() << std::endl; //Number of cells connected to the backbone
