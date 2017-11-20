@@ -124,7 +124,7 @@ Coordinate computeBarycentre(const std::vector<Coordinate> &listCoord) {
 * @return the Coordinate with the minimal distance to the point
 */
 Coordinate argDistMin(const Coordinate &point, const std::vector<Coordinate> &listCoord) {
-	if (listCoord.size() == 0) throw std::exception("Plan::argDistMin : La liste est vide");
+	if (listCoord.size() == 0) throw std::invalid_argument("Plan::argDistMin : La liste est vide");
 
 	int min = distance(point, listCoord[0]);
 	Coordinate argMin = listCoord[0];
@@ -162,7 +162,7 @@ void sectorLink(Plan &plan, const std::vector<Coordinate> &listBarycentres, std:
 
 		recursiveLink(plan, routersToConnect[0], initialListRouters, money, barycentre, listConnectedRouters,reversedMode);
 
-		for each (Coordinate router in listConnectedRouters)
+		for (Coordinate router : listConnectedRouters)
 		{
 			eraseFromVector(routersToConnect, router);
 		}

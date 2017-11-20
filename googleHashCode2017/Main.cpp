@@ -27,6 +27,6 @@ int main() {
 	money = solveProblem(p, 9);
 
 	std::cout << p;
-	std::cout << "money : " << money << std::endl;
+	std::cout << "money used : " << money << std::endl;
 	return 0;
 }

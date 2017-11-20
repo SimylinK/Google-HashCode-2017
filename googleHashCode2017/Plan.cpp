@@ -181,7 +181,7 @@ void Plan::removeRouters(int nbRouterSector, int nbWires) {
 
 		}
 		else {
-			throw std::exception("Plan::removeRouters :Tried to remove a router where there was not");
+			throw std::invalid_argument("Plan::removeRouters : Tried to remove a router where there was not");
 		}		
 		this->routers.pop_back();
 		i++;
@@ -196,7 +196,7 @@ void Plan::removeRouters(int nbRouterSector, int nbWires) {
 			this->building[c.x][c.y].setWired(false);
 		}
 		else {
-			throw std::exception("Plan::removeRouters :Tried to remove a wire where there was not");
+			throw std::invalid_argument("Plan::removeRouters :Tried to remove a wire where there was not");
 		}
 		this->wires.pop_back();
 		i++;
@@ -343,10 +343,8 @@ void Plan::link(const Coordinate &a, const Coordinate &b, int &money) {
 				}
 			}
 		}
-		else {
-			throw std::exception("Plan::link la fonction n'a pas réussi à placer les cables");
-		}
-		for each (Coordinate wire in wiresToAdd)
+
+		for (Coordinate wire : wiresToAdd)
 		{
 			this->addWire(wire);
 			money += this->wireCost;
