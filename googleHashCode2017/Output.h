@@ -2,5 +2,5 @@
 
 #include "Plan.h"
 
-//Function which writes the output
-void output(Plan plan, std::string outputFile);
+//Function which writes the output file
+void output(Plan plan, std::string outputPath); 
