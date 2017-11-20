@@ -30,9 +30,9 @@ public:
 	inline int getMaxBudget(){return maxBudget;}
 
 	void addRouter(Coordinate &c);
-	void addBackbone(Coordinate &c);
-	std::vector<Cell> reachableCells(const Coordinate &c);
-	std::vector<Cell> coverableCells(const Coordinate &router);
+	void addWire(Coordinate &c);
+	std::vector<Cell*> reachableCells(const Coordinate &c);
+	std::vector<Cell*> coverableCells(const Coordinate &router);
 
 	friend std::ostream &operator<<(std::ostream &os, const Plan &p);
 
