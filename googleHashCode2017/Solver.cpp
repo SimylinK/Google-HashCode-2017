@@ -57,12 +57,12 @@ int solveProblem(Plan &p, int nbRouterSector){
 				spentMoney -= nbRouterSector*p.getRouterCost() + (lastNbWireSector)*p.getWireCost();
 				nbRouterSector--;
 			}
-
-			return spentMoney;
 		}
 	//If there's not enough money to place one router
 	//or if there's no place any more to position a router, then the algorithm stops.
 	}while (nbRouterSector > 0 && sectorRouters.size() > 0);
+
+	return spentMoney;
 }
 
 /**
