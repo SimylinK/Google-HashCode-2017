@@ -2,7 +2,7 @@
 #include "Solver.h"
 #include <iostream>
 /**
-* Position and link and network of routers on a plan to maximise the number of covered cells
+* Position and link a network of routers on a plan to maximise the number of covered cells
 * @param p: the plan to position the routers on
 * @param nbRouterSector: the maximum number of routers in a sector
 * @return the money spent
@@ -220,7 +220,6 @@ void recursiveLink(Plan &plan, const Coordinate &router, const std::vector<Coord
 */
 Coordinate followWire(Plan &plan, const Coordinate &startRouter, const Coordinate &targetRouter) {
 
-
 	Coordinate closestPoint = startRouter;
 
 	if (plan.isWired(startRouter)) { //If the point is not wired, it cannot get closer
@@ -280,7 +279,7 @@ Coordinate followWire(Plan &plan, const Coordinate &startRouter, const Coordinat
 			// Check if there is a wire at one of the 3 coordinates
 			if (plan.isWired(Coordinate(betterCoord1.x, betterCoord1.y))) closestPoint = betterCoord1;
 			else if (plan.isWired(Coordinate(betterCoord2.x, betterCoord2.y))) closestPoint = betterCoord2;
-			else if (plan.isWired(Coordinate(betterCoord2.x, betterCoord2.y))) closestPoint = betterCoord3;
+			else if (plan.isWired(Coordinate(betterCoord3.x, betterCoord3.y))) closestPoint = betterCoord3;
 			else canGetCloser = false;
 
 		} while (canGetCloser);
