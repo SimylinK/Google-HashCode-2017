@@ -174,11 +174,10 @@ void Plan::removeRouters(int nbRouterSector, int nbWires) {
 		c = this->routers.back();
 		if (this->building[c.x][c.y].hasRouter() == true) {
 			this->building[c.x][c.y].setRouter(false);
-			std::vector<Cell*> &reachCell = this->reachableCells(c);
-			for (auto it = reachCell.begin(); it != reachCell.end(); it++) {
-				this->building[(*it)->getCoordinate().x][(*it)->getCoordinate().y].setCovered(false);
+			std::vector<Cell*> reachCell = this->reachableCells(c);
+			for (auto elem : reachCell) {
+				elem->setCovered(false);
 			}
-
 		}
 		else {
 			throw std::invalid_argument("Plan::removeRouters : Tried to remove a router where there was not");
@@ -186,6 +185,14 @@ void Plan::removeRouters(int nbRouterSector, int nbWires) {
 		this->routers.pop_back();
 		i++;
 	}
+	// Check that cells covered by an other router weren't set as not covered
+	for (auto coordinate : routers) {
+		std::vector<Cell*> covCell = coverableCells(coordinate);
+		for (auto cell : covCell) {
+			cell->setCovered(true);
+		}
+	}
+
 	
 	i = 0;
 	//Remove the wires
@@ -201,6 +208,8 @@ void Plan::removeRouters(int nbRouterSector, int nbWires) {
 		this->wires.pop_back();
 		i++;
 	}
+
+	
 }
 
 
