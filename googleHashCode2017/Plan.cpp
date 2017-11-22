@@ -156,7 +156,53 @@ void Plan::addRouter(Coordinate &c) {
 
 void Plan::addWire(Coordinate &c) {
 	wires.push_back(c);
+	building[c.x][c.y].setWired(true);
 }
+
+/**
+* Remove a number of routers and wires from the calling plan
+* @param nbRouterSector: the number of routers to remove
+* @param nbWires: the number of wires to remove
+*/
+void Plan::removeRouters(int nbRouterSector, int nbWires) {
+
+	//Remove the routers
+	Coordinate c;
+	int i = 0;
+	while(i<nbRouterSector && routers.size()>0){
+		
+		c = this->routers.back();
+		if (this->building[c.x][c.y].hasRouter() == true) {
+			this->building[c.x][c.y].setRouter(false);
+			std::vector<Cell*> &reachCell = this->reachableCells(c);
+			for (auto it = reachCell.begin(); it != reachCell.end(); it++) {
+				this->building[(*it)->getCoordinate().x][(*it)->getCoordinate().y].setCovered(false);
+			}
+
+		}
+		else {
+			throw std::invalid_argument("Plan::removeRouters : Tried to remove a router where there was not");
+		}		
+		this->routers.pop_back();
+		i++;
+	}
+	
+	i = 0;
+	//Remove the wires
+	while (i<nbWires && wires.size()>0){
+		c = this->wires.back();
+		//std::cout << c;
+		if (this->building[c.x][c.y].isWired() == true) {
+			this->building[c.x][c.y].setWired(false);
+		}
+		else {
+			throw std::invalid_argument("Plan::removeRouters :Tried to remove a wire where there was not");
+		}
+		this->wires.pop_back();
+		i++;
+	}
+}
+
 
 /**
  *
@@ -238,4 +284,70 @@ std::ostream &operator<<(std::ostream &os, const Plan &p) {
 		os << endl;
 	}
 	return os;
+}
+
+
+/**
+* Connect 2 routers with wire
+* @param a: the router from wich we will begin
+* @param b: the router wich is the destination
+* @param money: the money used until now, will be upadta during this method
+*/
+void Plan::link(const Coordinate &a, const Coordinate &b, int &money) {
+
+	if (a != b) {
+		int deltaX = std::abs(b.x - a.x);
+		if (deltaX == 0) deltaX = 1;
+		int deltaY = std::abs(b.y - a.y);
+		if (deltaY == 0) deltaY = 1;
+		int directionX = (b.x - a.x) / deltaX;
+		int directionY = (b.y - a.y) / deltaY;
+
+		int positionX = a.x;
+		int positionY = a.y;
+		// Move diagonal
+		vector<Coordinate> wiresToAdd;
+		for (int i = 0; i < min(deltaX, deltaY); i++) {
+			positionX += directionX;
+			positionY += directionY;
+			if (this->building[positionX][positionY].isWired()) {
+				wiresToAdd.clear();
+			}
+			else {
+				wiresToAdd.push_back(Coordinate(positionX, positionY));
+			}
+		}
+		//Move horizontal
+		if (positionX == b.x) {
+			int newDeltaY = std::abs(b.y - positionY);
+			for (int i = 0; i < newDeltaY; i++) {
+				positionY += directionY;
+				if (this->building[positionX][positionY].isWired()) {
+					wiresToAdd.clear();
+				}
+				else {
+					wiresToAdd.push_back(Coordinate(positionX, positionY));
+				}
+			}
+		}
+		//Move vertical
+		else if (positionY == b.y) {
+			int newDeltaX = std::abs(b.x - positionX);
+			for (int i = 0; i < newDeltaX; i++) {
+				positionX += directionX;
+				if (this->building[positionX][positionY].isWired()) {
+					wiresToAdd.clear();
+				}
+				else {
+					wiresToAdd.push_back(Coordinate(positionX, positionY));
+				}
+			}
+		}
+
+		for (Coordinate wire : wiresToAdd)
+		{
+			this->addWire(wire);
+			money += this->wireCost;
+		}
+	}
 }

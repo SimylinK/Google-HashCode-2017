@@ -8,6 +8,8 @@
 #include <vector>
 #include <string>
 #include <array>
+#include <list>
+#include <algorithm>
 
 class Plan {
 public:
@@ -28,16 +30,25 @@ public:
 	inline int getWireCost(){return wireCost;}
 	inline int getRouterCost(){return routerCost;}
 	inline int getMaxBudget(){return maxBudget;}
+	inline Coordinate getBackbone() { return backbone; };
+
+
+	inline bool isWired(const Coordinate &coord) { return building[coord.x][coord.y].isWired(); };
 
 	inline std::vector<Coordinate> getWires() { return wires; }
 	inline std::vector<Coordinate> getRouters() { return routers; }
 
 	void addRouter(Coordinate &c);
 	void addWire(Coordinate &c);
+	void removeRouters(int nbRouterSector, int nbWires);
 	std::vector<Cell*> reachableCells(const Coordinate &c);
 	std::vector<Cell*> coverableCells(const Coordinate &router);
 
+
 	friend std::ostream &operator<<(std::ostream &os, const Plan &p);
+
+	void link(const Coordinate &a, const Coordinate &b, int &money);
+
 
 private :
 	int rows;
