@@ -25,7 +25,7 @@ int solveProblem(Plan &p, int nbRouterSector){
 		std::cout << "Positioning routers" << std::endl;
 		//Position routers
 		sectorRouters.clear();
-		placeRoutersIterative(p, sectorRouters,nbRouterSector,spentMoney);
+		placeRoutersIterative(p, sectorRouters, nbRouterSector,spentMoney);
 		if (sectorRouters.size()!=0){
 
 			std::cout << "Positioning wires" << std::endl;
@@ -70,30 +70,26 @@ int solveProblem(Plan &p, int nbRouterSector){
 * @param p: the plan to position the routers on
 * @param n: the maximum number of routers to position
 */
-void placeRoutersIterative(Plan &p, std::vector<Coordinate>& sectorRouters, int n, int& spentMoney) {
+void placeRoutersIterative(Plan &p, std::vector<Coordinate>& sectorRouters, int nbRouterSector, int& spentMoney) {
 	int maxReachableCells = (p.getRouterRange()*2 + 1)*(p.getRouterRange()*2 + 1);
 	int numberPlacedRouters = 0;
-	int i= 0;
+	int routerCost = p.getRouterCost();
 	int j;
-	while (i < p.getRows() && numberPlacedRouters < n){
+	for (int i = 0; i < p.getRows() && numberPlacedRouters < nbRouterSector && spentMoney < p.getMaxBudget(); i++) {
 		j = 0;
-		while (j < p.getColumns() && numberPlacedRouters < n){
-			//std::cout << i << " " << j << std::endl;
+		for (int j = 0; j < p.getColumns() && numberPlacedRouters < nbRouterSector; j++) {
 			if (p.coverableCells(Coordinate(i, j)).size() == maxReachableCells) {
-				//std::cout << "Found a place to position a router : " << i <<" "<< j << std::endl;
 				Coordinate c(i,j);
 				p.addRouter(c);
 				sectorRouters.push_back(c);
-				numberPlacedRouters++;		
+				numberPlacedRouters++;
+				spentMoney += routerCost;
 			}			
-			j++;
 		}
-		i++;
 	}
-	spentMoney += numberPlacedRouters*p.getRouterCost();
 
-	if (sectorRouters.size() < n) {
-		std::cout << "Solver could only postion " << sectorRouters.size() << " on " << n << " routers asked." << std::endl;
+	if (sectorRouters.size() < nbRouterSector) {
+		std::cout << "Solver could only postion " << sectorRouters.size() << " on " << nbRouterSector << " routers asked." << std::endl;
 	}
 
 }
