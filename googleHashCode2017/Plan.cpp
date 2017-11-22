@@ -271,6 +271,9 @@ vector<Cell*> Plan::coverableCells(const Coordinate &router) {
 std::ostream &operator<<(std::ostream &os, const Plan &p) {
 	for (int i = 0; i < p.rows; ++i) {
 		for (int j = 0; j < p.columns; ++j) {
+			if (i == p.backbone.x && j == p.backbone.y) {
+				os << 'B';
+			}
 			if (p(i, j).hasRouter()) {
 				os << 'R';
 			} else if (p(i, j).isWired()) {
