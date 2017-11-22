@@ -1,23 +1,14 @@
 #include <iostream>
 #include "Plan.h"
 #include "Solver.h"
+#include <fstream>
 
 int main() {
 	Plan p("../inputData/test.in");
-	std::cout << p;
-	//placeRoutersIterative(p);
-	//std::cout << p;
 
-	Coordinate router1 = Coordinate(3,2);
-	Coordinate router2 = Coordinate(4,5);
-	Coordinate router3 = Coordinate(8,1);
-	//p.addRouter(router1);
-	//p.addRouter(router2);
-	//p.addRouter(router3);
+	std::cout << p;
 
 	int money = 0;
-	std::vector<Coordinate> listBarycentres{ Coordinate(1,1) };
-	std::vector<Coordinate> listRouters{Coordinate(3,2), Coordinate(4,5), Coordinate(8,1)};
 
 	std::cout <<"MaxBudget : "<< p.getMaxBudget() << std::endl;
 	std::cout <<"Router cost "<< p.getRouterCost() << std::endl;
@@ -28,5 +19,12 @@ int main() {
 
 	std::cout << p;
 	std::cout << "money used : " << money << std::endl;
+
+	// To fill an output file (in notepadd++ you can dezoom to analyse big maps)
+	/*std::ofstream file("../output/test.out", std::ios::out);
+	if (file) {
+		file << p << std::endl;
+	}*/
+
 	return 0;
 }
