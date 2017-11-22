@@ -277,9 +277,9 @@ Coordinate followWire(Plan &plan, const Coordinate &startRouter, const Coordinat
 				}
 			}
 			// Check if there is a wire at one of the 3 coordinates
-			if (plan.isWired(Coordinate(betterCoord1.x, betterCoord1.y))) closestPoint = betterCoord1;
-			else if (plan.isWired(Coordinate(betterCoord2.x, betterCoord2.y))) closestPoint = betterCoord2;
-			else if (plan.isWired(Coordinate(betterCoord3.x, betterCoord3.y))) closestPoint = betterCoord3;
+			if (plan.isWired(betterCoord1) && distance(betterCoord1, targetRouter) < distance(betterCoord1, closestPoint)) closestPoint = betterCoord1;
+			else if (plan.isWired(betterCoord2) && distance(betterCoord1, targetRouter) < distance(betterCoord1, closestPoint)) closestPoint = betterCoord2;
+			else if (plan.isWired(betterCoord3) && distance(betterCoord1, targetRouter) < distance(betterCoord1, closestPoint)) closestPoint = betterCoord3;
 			else canGetCloser = false;
 
 		} while (canGetCloser);
