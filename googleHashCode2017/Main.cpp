@@ -15,7 +15,7 @@ int main() {
 	std::cout <<"Wire cost " <<p.getWireCost() << std::endl;
 	//placeRoutersIterative(p, 10);
 	//sectorLink(p, listBarycentres, listRouters, money);
-	money = solveProblem(p, 9);
+	money = solveProblem(p);
 
 	std::cout << p;
 	std::cout << "money used : " << money << std::endl;

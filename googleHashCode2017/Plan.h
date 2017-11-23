@@ -1,7 +1,9 @@
 #pragma once
 
+#include "Grid.h"
 #include "Coordinate.h"
 #include "Cell.h"
+
 #ifdef WIN32
 #include <windows.h>
 #endif
@@ -24,6 +26,7 @@ public:
 	inline Cell& operator()(int i, int j){return building[i][j];}
 	inline Cell& operator()(int i, int j) const {return building[i][j];}
 
+	inline std::vector<Coordinate> getRouters() { return routers; };
 	inline int getRows() { return rows; }
 	inline int getColumns() { return columns; }
 	inline int getRouterRange(){return routerRange;}
@@ -31,9 +34,11 @@ public:
 	inline int getRouterCost(){return routerCost;}
 	inline int getMaxBudget(){return maxBudget;}
 	inline Coordinate getBackbone() { return backbone; };
+	inline int getGridCell_width() { return this->grid.getGridCell_width(); };
+	inline int getGridCell_heigth() { return this->grid.getGridCell_heigth(); };
 
-
-	inline bool isWired(const Coordinate &coord) { return building[coord.x][coord.y].isWired(); };
+	inline bool isWired(const Coordinate coord) { return building[coord.x][coord.y].isWired(); };
+	inline bool isGridWired(std::pair<int,int> pair) { return this->grid.isWired(pair); };
 
 	void addRouter(Coordinate &c);
 	void addWire(Coordinate &c);
@@ -46,6 +51,7 @@ public:
 
 	void link(const Coordinate &a, const Coordinate &b, int &money);
 
+	Grid grid;
 
 private :
 	int rows;
@@ -58,6 +64,7 @@ private :
 	std::vector<Coordinate> routers;
 	Coordinate backbone;
 	std::vector<Coordinate> wires;
+
 };
 
 std::ostream &operator<<(std::ostream &os, const Plan &p);

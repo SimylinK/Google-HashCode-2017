@@ -4,9 +4,13 @@
 #include "Plan.h"
 
 
-void placeRoutersIterative(Plan &p, std::vector<Coordinate>& sectorRouters, int n, int& spentMoney);
+void placeRoutersIterative(Plan &p, int& spentMoney);
+
+
 
 // For the first solver solution
+
+std::list<std::pair<int, int>> gridWiring(std::list<std::pair<int, int>>& listSectorRouters, Plan &p, int &spentMoney);
 Coordinate computeBarycentre(const std::vector<Coordinate> &listCoord);
 Coordinate argDistMin(const Coordinate &point, const std::vector<Coordinate> &listCoord);
 
@@ -23,7 +27,8 @@ Coordinate followWire(Plan &plan, const Coordinate &startRouter, const Coordinat
 
 void eraseFromVector(std::vector<Coordinate> &vector, const Coordinate &coord);
 void eraseFromVector(std::vector<Coordinate> &vector, std::vector<Coordinate> &vectorToRemove);
-int solveProblem(Plan &p, int nbRouterSector);
+int solveProblem(Plan &p);
+void fillGrid(Plan &plan);
 
 std::ostream& operator<<(std::ostream& o, std::vector<Coordinate> &vector);
 

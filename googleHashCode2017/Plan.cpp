@@ -2,6 +2,7 @@
 #include "utility.h"
 #include <iostream>
 #include <fstream>
+#include <math.h> 
 
 using namespace std;
 
@@ -49,6 +50,7 @@ Plan::Plan(string inputFile) {
 		cout << "Unable to open input file : " << inputFile << endl;
 	}
 
+	this->grid = Grid(*this);
 }
 
 Plan::Plan(const Plan &p) :

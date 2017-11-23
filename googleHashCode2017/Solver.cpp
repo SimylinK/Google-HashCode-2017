@@ -1,89 +1,119 @@
 #include <cmath>
 #include "Solver.h"
+#include <map>
 #include <iostream>
+#include <math.h> 
+
 /**
 * Position and link a network of routers on a plan to maximise the number of covered cells
 * @param p: the plan to position the routers on
 * @param nbRouterSector: the maximum number of routers in a sector
 * @return the money spent
 */
-int solveProblem(Plan &p, int nbRouterSector){
+int solveProblem(Plan &p){
 
 	int spentMoney = 0;
-	int lastNbWireSector; //The number of wires that was required to link a sector
-	int lastSpentMoney;
-	int nbFirstWires;
 
+	std::cout << "Positioning routers" << std::endl;
+	placeRoutersIterative(p, spentMoney);
 
-	std::vector<Coordinate> sectorRouters;
-	std::vector<Coordinate> listBarycentres;
-	Coordinate currentBary;
-	Coordinate closestBackboneRouter;
+	fillGrid(p);
+	std::cout << "Positioning wires" << std::endl;
 
-	do{
-		std::cout << nbRouterSector << std::endl;
-		std::cout << "Positioning routers" << std::endl;
-		//Position routers
-		sectorRouters.clear();
-		placeRoutersIterative(p, sectorRouters,nbRouterSector,spentMoney);
-		if (sectorRouters.size()!=0){
+	//The list of sectors is initialized with the sector containing the backbone
+	std::list<std::pair<int,int>> listSectorRouters{ std::pair<int,int>(p.getBackbone().x / p.getGridCell_heigth(),
+																p.getBackbone().y / p.getGridCell_width()) };
 
-			std::cout << "Positioning wires" << std::endl;
-			//Position wires
-
-			lastSpentMoney = spentMoney;
-
-			std::vector<Coordinate> listConnectedRouters;
-
-			currentBary = computeBarycentre(sectorRouters);
-			closestBackboneRouter = argDistMin(p.getBackbone(), sectorRouters);
-			listBarycentres.push_back(currentBary);
-
-			if (distance(closestBackboneRouter, p.getBackbone()) < distance(currentBary, p.getBackbone())){
-				p.link(p.getBackbone(), closestBackboneRouter, spentMoney);
-				recursiveLink(p, closestBackboneRouter, sectorRouters, spentMoney, currentBary, listConnectedRouters,true);
-			}
-			else {
-				p.link(p.getBackbone(), currentBary, spentMoney);
-			}
-
-
-			sectorLink(p, listBarycentres, sectorRouters, spentMoney, listConnectedRouters,false);
-			lastNbWireSector = (spentMoney - lastSpentMoney) / p.getWireCost();
-
-			if (spentMoney > p.getMaxBudget()) {
-						
-				p.removeRouters(nbRouterSector, lastNbWireSector);
-				spentMoney -= nbRouterSector*p.getRouterCost() + (lastNbWireSector)*p.getWireCost();
-				nbRouterSector--;
-			}
-		}
-	//If there's not enough money to place one router
-	//or if there's no place any more to position a router, then the algorithm stops.
-	}while (nbRouterSector > 0 && sectorRouters.size() > 0);
-
+	while(listSectorRouters.size() != 0) {
+		listSectorRouters = gridWiring(listSectorRouters, p, spentMoney);
+	}
 	return spentMoney;
 }
 
+
 /**
-* Position a sector of routers
-* @param p: the plan to position the routers on
-* @param n: the maximum number of routers to position
+* Wire a list of router sectors and return the list of neighboring router sectors
+* @param listSectorRouters: the list of pair of indices (i,j) corresponding to the sectors to wire
+* @param p: the plan where the routers are
+* @param spentMoney : the money used until now, will be updated during this method
+* @return the list of neighboring router sector, not wired yet
 */
-void placeRoutersIterative(Plan &p, std::vector<Coordinate>& sectorRouters, int n, int& spentMoney) {
+std::list<std::pair<int, int>> gridWiring(std::list<std::pair<int,int>>& listSectorRouters, Plan &p,int &spentMoney) {
+	int lastNbWireSector; //The number of wires that was required to link a sector
+	int lastSpentMoney;
+	int nbFirstWires;
+	std::vector<Coordinate> listBarycentres;
+	std::vector<Coordinate> sectorRouters;
+	Coordinate currentBary;
+	Coordinate closestBackboneRouter;
+	std::list<std::pair<int, int>> listNeighbSectorRouters;
+	bool sectorIsPostionned;
+
+	for (auto coord_sectorRouters : listSectorRouters) {
+		sectorRouters = p.grid(coord_sectorRouters);
+		sectorIsPostionned = false;
+		do {
+			if (sectorRouters.size() > 0) {
+
+				lastSpentMoney = spentMoney;
+
+				std::vector<Coordinate> listConnectedRouters;
+
+				currentBary = computeBarycentre(sectorRouters);
+				closestBackboneRouter = argDistMin(p.getBackbone(), sectorRouters);
+				listBarycentres.push_back(currentBary);
+
+				if (distance(closestBackboneRouter, p.getBackbone()) < distance(currentBary, p.getBackbone())) {
+					p.link(p.getBackbone(), closestBackboneRouter, spentMoney);
+					recursiveLink(p, closestBackboneRouter, sectorRouters, spentMoney, currentBary, listConnectedRouters, true);
+				}
+				else {
+					p.link(p.getBackbone(), currentBary, spentMoney);
+				}
+
+				sectorLink(p, listBarycentres, sectorRouters, spentMoney, listConnectedRouters, false);
+				lastNbWireSector = (spentMoney - lastSpentMoney) / p.getWireCost();
+
+				if (spentMoney > p.getMaxBudget()) {
+					p.removeRouters(static_cast<int>(sectorRouters.size()), lastNbWireSector);
+					spentMoney -= static_cast<int>(sectorRouters.size())*p.getRouterCost() + (lastNbWireSector)*p.getWireCost();
+					sectorRouters.pop_back(); //If there's not enough money to position all the routers of the sector
+											  //the algorithm tries again with one less router
+				}
+				else {
+					sectorIsPostionned = true;
+					for (auto neighRouterSector : p.grid.getNeighbors(coord_sectorRouters)){
+						if (!p.isGridWired(neighRouterSector)) {
+							listNeighbSectorRouters.push_back(neighRouterSector);
+						}
+					}
+				}
+			}
+			//If no router can be wired (because there's not enough money)
+			//or if the routers have been wired, the algorithm stops
+		} while (sectorRouters.size() > 0 && !sectorIsPostionned);
+	}
+
+	return listNeighbSectorRouters;
+}
+
+
+/**
+* Position all possible routers with maximum coverage area
+* @param p: the plan to position the routers on
+* @param spentMoney : the money used until now, will be updated during this method
+*/
+void placeRoutersIterative(Plan &p, int& spentMoney) {
 	int maxReachableCells = (p.getRouterRange()*2 + 1)*(p.getRouterRange()*2 + 1);
 	int numberPlacedRouters = 0;
 	int i= 0;
 	int j;
-	while (i < p.getRows() && numberPlacedRouters < n){
+	while (i < p.getRows()){
 		j = 0;
-		while (j < p.getColumns() && numberPlacedRouters < n){
-			//std::cout << i << " " << j << std::endl;
+		while (j < p.getColumns()){
 			if (p.coverableCells(Coordinate(i, j)).size() == maxReachableCells) {
-				//std::cout << "Found a place to position a router : " << i <<" "<< j << std::endl;
 				Coordinate c(i,j);
 				p.addRouter(c);
-				sectorRouters.push_back(c);
 				numberPlacedRouters++;		
 			}			
 			j++;
@@ -91,11 +121,6 @@ void placeRoutersIterative(Plan &p, std::vector<Coordinate>& sectorRouters, int 
 		i++;
 	}
 	spentMoney += numberPlacedRouters*p.getRouterCost();
-
-	if (sectorRouters.size() < n) {
-		std::cout << "Solver could only postion " << sectorRouters.size() << " on " << n << " routers asked." << std::endl;
-	}
-
 }
 
 /**
@@ -287,6 +312,26 @@ Coordinate followWire(Plan &plan, const Coordinate &startRouter, const Coordinat
 
 	return closestPoint;
 }
+
+
+
+/**
+* Assign each router to a grid cell 
+* @param plan: the plan to work with
+* @param grid : a map of pairs linking a grid cell of a grid cell with the vector of routers assigned to that cell
+*/
+void fillGrid(Plan & plan) {
+
+	std::vector<Coordinate> allRouters =plan.getRouters();
+
+
+
+	for (auto router : allRouters) {
+		plan.grid(std::pair<int, int>(router.x / plan.getGridCell_heigth(), router.y / plan.getGridCell_width())).push_back(router);
+	}
+
+}
+
 
 void eraseFromVector(std::vector<Coordinate> &vector, const Coordinate &coord) {
 
