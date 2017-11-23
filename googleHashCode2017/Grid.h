@@ -3,13 +3,12 @@
 #include <vector>
 #include <list>
 #include "Coordinate.h"
-#include "Plan.h"
 const int nbGridCell_side = 10;
 class Grid {
 
 public:
 	Grid();
-	Grid(Plan &p);
+	Grid(const int &nbRows, const int &nbColumns);
 
 	std::vector<Coordinate>& operator()(std::pair<int, int>);
 	bool isWired(std::pair<int, int>);

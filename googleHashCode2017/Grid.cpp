@@ -2,7 +2,8 @@
 #include "Grid.h"
 
 Grid::Grid() {}; 
-Grid::Grid(Plan &p) {
+
+Grid::Grid(const int &nbRows, const int &nbColumns) {
 
 	for (int i = 0; i < nbGridCell_side; i++) {
 		for (int j = 0; j < nbGridCell_side; j++) {
@@ -10,8 +11,8 @@ Grid::Grid(Plan &p) {
 		}
 
 	}
-	this->gridCell_heigth = p.getRows() / nbGridCell_side;
-	this->gridCell_width = p.getColumns() / nbGridCell_side;
+	this->gridCell_heigth = nbRows / nbGridCell_side;
+	this->gridCell_width = nbColumns / nbGridCell_side;
 }
 
 std::vector<Coordinate>& Grid::operator()(std::pair<int, int> pair) {

@@ -50,7 +50,7 @@ Plan::Plan(string inputFile) {
 		cout << "Unable to open input file : " << inputFile << endl;
 	}
 
-	this->grid = Grid(*this);
+	this->grid = Grid(this->rows, this->columns);
 }
 
 Plan::Plan(const Plan &p) :
