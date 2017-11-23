@@ -6,7 +6,7 @@
 int main() {
 	Plan p("../inputData/test.in");
 
-	std::cout << p;
+	//std::cout << p;
 
 	int money = 0;
 
@@ -17,14 +17,14 @@ int main() {
 	//sectorLink(p, listBarycentres, listRouters, money);
 	money = solveProblem(p);
 
-	std::cout << p;
+	//std::cout << p;
 	std::cout << "money used : " << money << std::endl;
 
 	// To fill an output file (in notepadd++ you can dezoom to analyse big maps)
-	/*std::ofstream file("../output/test.out", std::ios::out);
+	std::ofstream file("../output/test.out", std::ios::out);
 	if (file) {
 		file << p << std::endl;
-	}*/
+	}
 
 	return 0;
 }

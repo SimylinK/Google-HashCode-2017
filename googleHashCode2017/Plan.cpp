@@ -6,8 +6,7 @@
 
 using namespace std;
 
-Plan::Plan() {
-}
+Plan::Plan() {}
 
 Plan::Plan(string inputFile) {
 

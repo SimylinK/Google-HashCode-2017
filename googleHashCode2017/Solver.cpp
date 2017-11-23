@@ -14,9 +14,10 @@ int solveProblem(Plan &p){
 
 	int spentMoney = 0;
 
+
+
 	std::cout << "Positioning routers" << std::endl;
 	placeRoutersIterative(p, spentMoney);
-
 	fillGrid(p);
 	std::cout << "Positioning wires" << std::endl;
 
@@ -24,7 +25,9 @@ int solveProblem(Plan &p){
 	std::list<std::pair<int,int>> listSectorRouters{ std::pair<int,int>(p.getBackbone().x / p.getGridCell_heigth(),
 																p.getBackbone().y / p.getGridCell_width()) };
 
+
 	while(listSectorRouters.size() != 0) {
+		std::cout << "--------------------gridWiring--------------------" << std::endl;
 		listSectorRouters = gridWiring(listSectorRouters, p, spentMoney);
 	}
 	return spentMoney;
@@ -49,7 +52,11 @@ std::list<std::pair<int, int>> gridWiring(std::list<std::pair<int,int>>& listSec
 	std::list<std::pair<int, int>> listNeighbSectorRouters;
 	bool sectorIsPostionned;
 
+
+
+
 	for (auto coord_sectorRouters : listSectorRouters) {
+		std::cout << "Wiring sector  " << coord_sectorRouters.first << " " << coord_sectorRouters.second << std::endl;
 		sectorRouters = p.grid(coord_sectorRouters);
 		sectorIsPostionned = false;
 		do {
@@ -73,14 +80,12 @@ std::list<std::pair<int, int>> gridWiring(std::list<std::pair<int,int>>& listSec
 
 				sectorLink(p, listBarycentres, sectorRouters, spentMoney, listConnectedRouters, false);
 				lastNbWireSector = (spentMoney - lastSpentMoney) / p.getWireCost();
-
 				if (spentMoney > p.getMaxBudget()) {
 					p.removeRouters(static_cast<int>(sectorRouters.size()), lastNbWireSector);
 					spentMoney -= static_cast<int>(sectorRouters.size())*p.getRouterCost() + (lastNbWireSector)*p.getWireCost();
 					sectorRouters.pop_back(); //If there's not enough money to position all the routers of the sector
 											  //the algorithm tries again with one less router
-				}
-				else {
+				}else {
 					sectorIsPostionned = true;
 					for (auto neighRouterSector : p.grid.getNeighbors(coord_sectorRouters)){
 						if (!p.isGridWired(neighRouterSector)) {
@@ -92,6 +97,10 @@ std::list<std::pair<int, int>> gridWiring(std::list<std::pair<int,int>>& listSec
 			//If no router can be wired (because there's not enough money)
 			//or if the routers have been wired, the algorithm stops
 		} while (sectorRouters.size() > 0 && !sectorIsPostionned);
+
+		if (sectorIsPostionned) {
+			p.grid.setWired(coord_sectorRouters, true);
+		}
 	}
 
 	return listNeighbSectorRouters;
@@ -207,16 +216,17 @@ void sectorLink(Plan &plan, const std::vector<Coordinate> &listBarycentres, std:
 void recursiveLink(Plan &plan, const Coordinate &router, const std::vector<Coordinate> &listRouters, int &money, 
 									const Coordinate &barycentre, std::vector<Coordinate> &listConnectedRouters, bool reversedMode = false) {
 
+
 	listConnectedRouters.push_back(router);
 	std::vector<Coordinate> listCoordinatesForLink = listRouters;
 
-	// Remove the router from  listCoordinatesForLink
 	eraseFromVector(listCoordinatesForLink, router);
-	//eraseFromVector(listCoordinatesForLink, listConnectedRouters);
 
-	listCoordinatesForLink.push_back(barycentre);
+	if (std::find(listCoordinatesForLink.begin(), listCoordinatesForLink.end(), barycentre)== listCoordinatesForLink.end()){
+		listCoordinatesForLink.push_back(barycentre);
+	}
+	
 
-	// Find closest point to link
 	Coordinate closestLinkablePoint = argDistMin(router, listCoordinatesForLink);
 
 	if (reversedMode == true) {
@@ -320,18 +330,14 @@ Coordinate followWire(Plan &plan, const Coordinate &startRouter, const Coordinat
 * @param plan: the plan to work with
 * @param grid : a map of pairs linking a grid cell of a grid cell with the vector of routers assigned to that cell
 */
-void fillGrid(Plan & plan) {
+void fillGrid(Plan & p) {
 
-	std::vector<Coordinate> allRouters =plan.getRouters();
+	std::vector<Coordinate> allRouters =p.getRouters();
 
-
-
-	for (auto router : allRouters) {
-		plan.grid(std::pair<int, int>(router.x / plan.getGridCell_heigth(), router.y / plan.getGridCell_width())).push_back(router);
+	for (auto it=allRouters.begin();it != allRouters.end();it++) {
+		p.grid(std::pair<int, int>(it->x / p.getGridCell_heigth(), it->y / p.getGridCell_width())).push_back(*it);	
 	}
-
 }
-
 
 void eraseFromVector(std::vector<Coordinate> &vector, const Coordinate &coord) {
 
