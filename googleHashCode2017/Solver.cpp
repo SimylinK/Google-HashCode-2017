@@ -175,7 +175,7 @@ void sectorLink(Plan &plan, const std::vector<Coordinate> &listBarycentres, std:
 * @param listWiredGroup: a list of router sector already connected
 * @param unwiredGroup: a router sector of coordinate not connected
 * @param p: the plan to work with
-* @return the coordinate of unwiredGroup connected by a wire
+* @return the pair of coordinates that minimizes the distance between unwiredGroup and listWiredGroup
 */
 std::pair<Coordinate, Coordinate> linkTwoGroups(Plan &p, const std::list<std::vector<Coordinate>>& listWiredGroup, const std::vector<Coordinate>& unwiredGroup)
 {
