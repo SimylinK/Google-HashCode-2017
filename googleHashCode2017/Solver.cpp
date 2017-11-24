@@ -2,7 +2,6 @@
 #include "Solver.h"
 #include <map>
 #include <iostream>
-#include <math.h> 
 
 /**
 * Position and link a network of routers on a plan to maximise the number of covered cells
@@ -16,7 +15,6 @@ int solveProblem(Plan &p){
 
 	std::cout << "Positioning routers" << std::endl;
 	placeRoutersIterative(p, spentMoney);
-	fillGrid(p);
 	std::cout << "Positioning wires" << std::endl;
 
 	//The list of sectors is initialized with the sector containing the backbone
@@ -293,22 +291,6 @@ Coordinate followWire(Plan &plan, const Coordinate &startRouter, const Coordinat
 	}
 
 	return closestPoint;
-}
-
-
-
-/**
-* Assign each router to a grid cell 
-* @param plan: the plan to work with
-* @param grid : a map of pairs linking a grid cell of a grid cell with the vector of routers assigned to that cell
-*/
-void fillGrid(Plan & p) {
-
-	std::vector<Coordinate> allRouters =p.getRouters();
-
-	for (auto it=allRouters.begin();it != allRouters.end();it++) {
-		p.grid(std::pair<int, int>(it->x / p.getGridCell_heigth(), it->y / p.getGridCell_width())).push_back(*it);	
-	}
 }
 
 void eraseFromVector(std::vector<Coordinate> &vector, const Coordinate &coord) {
