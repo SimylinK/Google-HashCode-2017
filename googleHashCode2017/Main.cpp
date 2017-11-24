@@ -3,6 +3,8 @@
 #include "Solver.h"
 #include <fstream>
 
+#include "Output.h"
+
 int main() {
 	Plan p("../inputData/test.in");
 
@@ -24,6 +26,13 @@ int main() {
 	std::ofstream file("../output/test.out", std::ios::out);
 	if (file) {
 		file << p << std::endl;
+	}
+
+	try {
+		output(p, "../outputFile.out");
+	}
+	catch (std::exception e) {
+		std::cout << e.what();
 	}
 
 	return 0;

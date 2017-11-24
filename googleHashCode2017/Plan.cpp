@@ -147,10 +147,10 @@ Plan::~Plan() {
 void Plan::addRouter(Coordinate &c) {
 	routers.push_back(c);
 	building[c.x][c.y].setRouter(true);
-	vector<Cell> covCells = coverableCells(c);
-	for (Cell &cov:covCells) {
-		Coordinate co = cov.getCoordinate();
-		building[co.x][co.y].setCovered(true);
+	vector<Cell*> covCells = coverableCells(c);
+	for (Cell *cov:covCells) {
+		Coordinate co = cov->getCoordinate();
+		cov->setCovered(true);
 	}
 
 }
@@ -175,9 +175,9 @@ void Plan::removeRouters(int nbRouterSector, int nbWires) {
 		c = this->routers.back();
 		if (this->building[c.x][c.y].hasRouter() == true) {
 			this->building[c.x][c.y].setRouter(false);
-			std::vector<Cell> &reachCell = this->reachableCells(c);
+			std::vector<Cell*> &reachCell = this->reachableCells(c);
 			for (auto it = reachCell.begin(); it != reachCell.end(); it++) {
-				this->building[it->getCoordinate().x][it->getCoordinate().y].setCovered(false);
+				this->building[(*it)->getCoordinate().x][(*it)->getCoordinate().y].setCovered(false);
 			}
 
 		}
@@ -210,8 +210,8 @@ void Plan::removeRouters(int nbRouterSector, int nbWires) {
  * @param router: coordinate where to place a router. If coordinate isn't a target cell, return is empty.
  * @return list of reachable target cells, including the one where the router is placed.
  */
-vector<Cell> Plan::reachableCells(const Coordinate &router) {
-	vector<Cell> cells;
+vector<Cell*> Plan::reachableCells(const Coordinate &router) {
+	vector<Cell*> cells;
 	if (building[router.x][router.y].floorType() == '.') {
 
 		// cases to check
@@ -237,7 +237,7 @@ vector<Cell> Plan::reachableCells(const Coordinate &router) {
 						}
 					}
 					if (!wall) {
-						cells.push_back(building[i][j]);
+						cells.push_back(&building[i][j]);
 					}
 				}
 
@@ -252,11 +252,11 @@ vector<Cell> Plan::reachableCells(const Coordinate &router) {
  * @param router: coordinate where to place a router. If coordinate isn't a target cell, return is empty.
  * @return list of coverable target cells, including the one where the router is placed. A coverable cell is a reachable cell that is not covered yet.
  */
-vector<Cell> Plan::coverableCells(const Coordinate &router) {
-	vector<Cell> reachableCells = this->reachableCells(router);
-	vector<Cell> coverableCells;
+vector<Cell*> Plan::coverableCells(const Coordinate &router) {
+	vector<Cell*> reachableCells = this->reachableCells(router);
+	vector<Cell*> coverableCells;
 	for (auto &e: reachableCells) {
-		if (!e.isCovered()) {
+		if (!e->isCovered()) {
 			coverableCells.push_back(e);
 		}
 	}

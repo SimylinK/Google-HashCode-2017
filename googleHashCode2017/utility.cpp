@@ -10,19 +10,3 @@ std::vector<std::string> splitString(std::string str){
 
 	return tokens;
 }
-
-std::pair<int, int> readDimensions(const char* inputFile){
-	std::pair<int, int> dimensions;
-	std::string line;
-	std::ifstream file(inputFile);
-	if (file.is_open()) {
-		// first three lines have important info
-		getline(file, line);
-		std::vector<std::string> splitLine = splitString(line);
-		dimensions.first = stoi(splitLine[0]);
-		dimensions.second = stoi(splitLine[1]);
-		return dimensions;
-	} else {
-		throw std::exception();
-	}
-}

@@ -26,7 +26,6 @@ public:
 	inline Cell& operator()(int i, int j){return building[i][j];}
 	inline Cell& operator()(int i, int j) const {return building[i][j];}
 
-	inline std::vector<Coordinate> getRouters() { return routers; };
 	inline int getRows() { return rows; }
 	inline int getColumns() { return columns; }
 	inline int getRouterRange(){return routerRange;}
@@ -40,12 +39,16 @@ public:
 	inline bool isWired(const Coordinate coord) { return building[coord.x][coord.y].isWired(); };
 	inline bool isGridWired(std::pair<int,int> pair) { return this->grid.isWired(pair); };
 
+	inline std::vector<Coordinate> getWires() { return wires; }
+	inline std::vector<Coordinate> getRouters() { return routers; }
+
+
 	void addRouter(Coordinate &c);
 	void addWire(Coordinate &c);
-
 	void removeRouters(int nbRouterSector, int nbWires);
-	std::vector<Cell> reachableCells(const Coordinate &c);
-	std::vector<Cell> coverableCells(const Coordinate &router);
+	std::vector<Cell*> reachableCells(const Coordinate &c);
+	std::vector<Cell*> coverableCells(const Coordinate &router);
+
 
 	friend std::ostream &operator<<(std::ostream &os, const Plan &p);
 
