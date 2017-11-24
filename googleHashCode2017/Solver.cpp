@@ -92,6 +92,7 @@ std::list<std::pair<int, int>> gridWiring(std::list<std::pair<int,int>>& listSec
 							listNeighbSectorRouters.push_back(neighRouterSector);
 						}
 					}
+					listNeighbSectorRouters.unique();
 				}
 			}
 			//If no router can be wired (because there's not enough money)
