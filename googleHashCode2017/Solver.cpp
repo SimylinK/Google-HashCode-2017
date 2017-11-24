@@ -42,66 +42,45 @@ int solveProblem(Plan &p){
 * @return the list of neighboring router sector, not wired yet
 */
 std::list<std::pair<int, int>> gridWiring(std::list<std::pair<int,int>>& listSectorRouters, Plan &p,int &spentMoney) {
-	int lastNbWireSector; //The number of wires that was required to link a sector
-	int lastSpentMoney;
-	int nbFirstWires;
 	std::vector<Coordinate> listBarycentres;
 	std::vector<Coordinate> sectorRouters;
 	Coordinate currentBary;
 	Coordinate closestBackboneRouter;
 	std::list<std::pair<int, int>> listNeighbSectorRouters;
-	bool sectorIsPostionned;
-
-
 
 
 	for (auto coord_sectorRouters : listSectorRouters) {
 		std::cout << "Wiring sector  " << coord_sectorRouters.first << " " << coord_sectorRouters.second << std::endl;
 		sectorRouters = p.grid(coord_sectorRouters);
-		sectorIsPostionned = false;
-		do {
-			if (sectorRouters.size() > 0) {
 
-				lastSpentMoney = spentMoney;
+		if (sectorRouters.size() > 0) {
 
-				std::vector<Coordinate> listConnectedRouters;
+			std::vector<Coordinate> listConnectedRouters;
 
-				currentBary = computeBarycentre(sectorRouters);
-				closestBackboneRouter = argDistMin(p.getBackbone(), sectorRouters);
-				listBarycentres.push_back(currentBary);
+			currentBary = computeBarycentre(sectorRouters);
+			closestBackboneRouter = argDistMin(p.getBackbone(), sectorRouters);
+			listBarycentres.push_back(currentBary);
 
-				if (distance(closestBackboneRouter, p.getBackbone()) < distance(currentBary, p.getBackbone())) {
-					p.link(p.getBackbone(), closestBackboneRouter, spentMoney);
-					recursiveLink(p, closestBackboneRouter, sectorRouters, spentMoney, currentBary, listConnectedRouters, true);
-				}
-				else {
-					p.link(p.getBackbone(), currentBary, spentMoney);
-				}
-
-				sectorLink(p, listBarycentres, sectorRouters, spentMoney, listConnectedRouters, false);
-				lastNbWireSector = (spentMoney - lastSpentMoney) / p.getWireCost();
-				if (spentMoney > p.getMaxBudget()) {
-					p.removeRouters(static_cast<int>(sectorRouters.size()), lastNbWireSector);
-					spentMoney -= static_cast<int>(sectorRouters.size())*p.getRouterCost() + (lastNbWireSector)*p.getWireCost();
-					sectorRouters.pop_back(); //If there's not enough money to position all the routers of the sector
-											  //the algorithm tries again with one less router
-				}else {
-					sectorIsPostionned = true;
-					for (auto neighRouterSector : p.grid.getNeighbors(coord_sectorRouters)){
-						if (!p.isGridWired(neighRouterSector)) {
-							listNeighbSectorRouters.push_back(neighRouterSector);
-						}
-					}
-					listNeighbSectorRouters.unique();
-				}
+			if (distance(closestBackboneRouter, p.getBackbone()) < distance(currentBary, p.getBackbone())) {
+				p.link(p.getBackbone(), closestBackboneRouter, spentMoney);
+				recursiveLink(p, closestBackboneRouter, sectorRouters, spentMoney, currentBary, listConnectedRouters, true);
 			}
-			//If no router can be wired (because there's not enough money)
-			//or if the routers have been wired, the algorithm stops
-		} while (sectorRouters.size() > 0 && !sectorIsPostionned);
+			else {
+				p.link(p.getBackbone(), currentBary, spentMoney);
+			}
 
-		if (sectorIsPostionned) {
-			p.grid.setWired(coord_sectorRouters, true);
+			sectorLink(p, listBarycentres, sectorRouters, spentMoney, listConnectedRouters, false);
 		}
+
+		// Add the neighboring sectors not connected, to the list of sectors to wired
+		for (auto neighRouterSector : p.grid.getNeighbors(coord_sectorRouters)) {
+			if (!p.isGridWired(neighRouterSector)) {
+				listNeighbSectorRouters.push_back(neighRouterSector);
+			}
+		}
+		// Remove the double sectors in the list
+		listNeighbSectorRouters.unique();
+		p.grid.setWired(coord_sectorRouters, true);
 	}
 
 	return listNeighbSectorRouters;
