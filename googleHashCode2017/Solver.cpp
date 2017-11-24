@@ -18,8 +18,8 @@ int solveProblem(Plan &p){
 	std::cout << "Positioning wires" << std::endl;
 
 	//The list of sectors is initialized with the sector containing the backbone
-	std::list<std::pair<int,int>> listSectorRouters{ std::pair<int,int>(p.getBackbone().x / p.getGridCell_heigth(),
-																p.getBackbone().y / p.getGridCell_width()) };
+	std::list<std::pair<int,int>> listSectorRouters{ std::pair<int,int>(p.getBackbone().x / p.getGrid().getGridCell_heigth(),
+																p.getBackbone().y / p.getGrid().getGridCell_width()) };
 
 	while(listSectorRouters.size() != 0) {
 		std::cout << "--------------------gridWiring--------------------" << std::endl;
@@ -46,7 +46,7 @@ std::list<std::pair<int, int>> gridWiring(std::list<std::pair<int,int>>& listSec
 
 	for (auto coord_sectorRouters : listSectorRouters) {
 		std::cout << "Wiring sector  " << coord_sectorRouters.first << " " << coord_sectorRouters.second << std::endl;
-		sectorRouters = p.grid(coord_sectorRouters);
+		sectorRouters = p.getGrid()(coord_sectorRouters);
 
 		if (sectorRouters.size() > 0) {
 
@@ -68,14 +68,14 @@ std::list<std::pair<int, int>> gridWiring(std::list<std::pair<int,int>>& listSec
 		}
 
 		// Add the neighboring sectors not connected, to the list of sectors to wired
-		for (auto neighRouterSector : p.grid.getNeighbors(coord_sectorRouters)) {
+		for (auto neighRouterSector : p.getGrid().getNeighbors(coord_sectorRouters)) {
 			if (!p.isGridWired(neighRouterSector)) {
 				listNeighbSectorRouters.push_back(neighRouterSector);
 			}
 		}
 		// Remove the double sectors in the list
 		listNeighbSectorRouters.unique();
-		p.grid.setWired(coord_sectorRouters, true);
+		p.getGrid().setWired(coord_sectorRouters, true);
 	}
 
 	return listNeighbSectorRouters;

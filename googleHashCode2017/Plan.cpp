@@ -147,7 +147,7 @@ Plan::~Plan() {
 void Plan::addRouter(Coordinate &c) {
 	routers.push_back(c);
 	// add the router to the grid
-	grid(std::pair<int, int>(c.x / getGridCell_heigth(), c.y / getGridCell_width())).push_back(c);
+	grid(std::pair<int, int>(c.x / grid.getGridCell_heigth(), c.y / grid.getGridCell_width())).push_back(c);
 	building[c.x][c.y].setRouter(true);
 	vector<Cell*> covCells = coverableCells(c);
 	for (Cell *cov:covCells) {
