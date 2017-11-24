@@ -1,7 +1,9 @@
 
 #include "Grid.h"
 #include <iostream>
-Grid::Grid() {}; 
+#include <cmath>
+
+Grid::Grid() {};
 
 Grid::Grid(const int &nbRows, const int &nbColumns) {
 
@@ -10,8 +12,8 @@ Grid::Grid(const int &nbRows, const int &nbColumns) {
 			this->wired[i][j] = false;
 		}
 	}
-	this->gridCell_heigth = nbRows / nbGridCell_side;
-	this->gridCell_width = nbColumns / nbGridCell_side;
+	(nbColumns%nbGridCell_side == 0) ? gridCell_width = nbColumns / nbGridCell_side : gridCell_width = (nbColumns / nbGridCell_side) + 1;
+	(nbRows%nbGridCell_side == 0) ? gridCell_heigth = nbRows / nbGridCell_side : gridCell_width = (nbRows / nbGridCell_side) + 1;
 }
 
 Grid::Grid(Grid &g) {
