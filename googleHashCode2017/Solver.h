@@ -18,7 +18,7 @@ void sectorLink(Plan &plan, const std::vector<Coordinate> &listBarycentres,  std
 	int &money,  std::vector<Coordinate> & listConnectedRouters, bool reversedMode);
 
 
-
+Coordinate linkTwoGroups(Plan &p, const std::vector<Coordinate> &wiredGroup, const std::vector<Coordinate> &unwiredGroup);
 
 void recursiveLink(Plan &plan, const Coordinate &router, const std::vector<Coordinate> &listRouters, int &money, 
 					const Coordinate &barycentre, std::vector<Coordinate> &listConnectedRouters, bool reversedMode);

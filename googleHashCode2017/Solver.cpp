@@ -175,11 +175,39 @@ void sectorLink(Plan &plan, const std::vector<Coordinate> &listBarycentres, std:
 
 }
 
+
+/**
+* Do the shortest connection between 2 groups of routers
+* @param wiredGroup: a group of coordinate connected
+* @param unwiredGroup: a group of coordinate not connected
+* @param p: the plan to work with
+* @return the coordinate of unwiredGroup connected by a wire
+*/
+Coordinate linkTwoGroups(Plan &p, const std::vector<Coordinate>& wiredGroup, const std::vector<Coordinate>& unwiredGroup)
+{
+	Coordinate bestWiredToConnect = wiredGroup[0];
+	Coordinate bestUnwiredToConnect = unwiredGroup[0];
+	int bestDistance = distance(bestWiredToConnect, bestUnwiredToConnect);
+
+	for (auto &wiredCoord : wiredGroup) {
+		for (auto &unwiredCoord : unwiredGroup) {
+			if (distance(wiredCoord, unwiredCoord) < bestDistance) {
+				bestWiredToConnect = wiredCoord;
+				bestUnwiredToConnect = unwiredCoord;
+				bestDistance = distance(bestWiredToConnect, bestUnwiredToConnect);
+			}
+		}
+	}
+	int money;
+	p.link(bestWiredToConnect, bestUnwiredToConnect, money);
+	return bestUnwiredToConnect;
+}
+
 /**
 * Connect a router to the network
 * @param router: the router to be connected
 * @param listRouters: list of the routers to work with, the method remove the rooter used from this list
-* @param money: the money used until now, will be upadta during this method
+* @param money: the money used until now, will be updated during this method
 * @param barycentre: the barycentre of listRouters
 * @param listConnectedRouters: an empty list, this method will add all the routers connected during this method
 */
