@@ -15,7 +15,7 @@ void sectorLink(Plan &plan, const std::vector<Coordinate> &listBarycentres, std:
 void recursiveLink(Plan &plan, const Coordinate &router, const std::vector<Coordinate> &listRouters,
 				   const Coordinate &barycentre, std::vector<Coordinate> &listConnectedRouters, bool reversedMode);
 Coordinate followWire(Plan &plan, const Coordinate &startRouter, const Coordinate &targetRouter);
-
+Coordinate linkTwoGroups(Plan &p, const std::vector<Coordinate> &wiredGroup, const std::vector<Coordinate> &unwiredGroup);
 
 void eraseFromVector(std::vector<Coordinate> &vector, const Coordinate &coord);
 void eraseFromVector(std::vector<Coordinate> &vector, std::vector<Coordinate> &vectorToRemove);
