@@ -33,6 +33,7 @@ public:
 	inline int getWireCost(){return wireCost;}
 	inline int getRouterCost(){return routerCost;}
 	inline int getMaxBudget(){return maxBudget;}
+	inline int getSpentMoney(){return spentMoney;}
 	inline Coordinate getBackbone() { return backbone; };
 	inline Grid& getGrid(){return grid;}
 
@@ -48,7 +49,7 @@ public:
 	void removeRouters(int nbRouterSector, int nbWires);
 	std::vector<Cell*> reachableCells(const Coordinate &c);
 	std::vector<Cell*> coverableCells(const Coordinate &router);
-	void link(const Coordinate &a, const Coordinate &b, int &money);
+	void link(const Coordinate &a, const Coordinate &b);
 
 private :
 	int rows;
@@ -57,6 +58,7 @@ private :
 	int wireCost; // cost to link one cell to backbone
 	int routerCost; // cost to place one wireless router
 	int maxBudget;
+	int spentMoney;
 	Cell **building;
 	std::vector<Coordinate> routers;
 	Coordinate backbone;

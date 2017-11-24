@@ -2,7 +2,7 @@
 #include "utility.h"
 #include <iostream>
 #include <fstream>
-#include <math.h> 
+#include <math.h>
 
 using namespace std;
 
@@ -49,7 +49,8 @@ Plan::Plan(string inputFile) {
 		cout << "Unable to open input file : " << inputFile << endl;
 	}
 
-	this->grid = Grid(this->rows, this->columns);
+	grid = Grid(rows, columns);
+	spentMoney = 0;
 }
 
 Plan::Plan(const Plan &p) :
@@ -60,7 +61,8 @@ Plan::Plan(const Plan &p) :
 		maxBudget(maxBudget),
 		routers(p.routers),
 		wires(p.wires),
-		backbone(p.backbone) {
+		backbone(p.backbone),
+		spentMoney(p.spentMoney) {
 	building = new Cell *[rows];
 	for (int i = 0; i < rows; ++i) {
 		building[i] = new Cell[columns];
@@ -80,7 +82,8 @@ Plan::Plan(Plan &&p) : rows(p.rows),
 					   maxBudget(maxBudget),
 					   routers(p.routers),
 					   wires(p.wires),
-					   backbone(p.backbone) {
+					   backbone(p.backbone),
+					   spentMoney(p.spentMoney) {
 	building = p.building;
 	p.building = nullptr;
 
@@ -95,6 +98,7 @@ Plan &Plan::operator=(const Plan &p) {
 	wires = p.wires;
 	backbone = p.backbone;
 	// delete building
+	spentMoney = p.spentMoney;
 	for (int i = 0; i < rows; ++i) {
 		delete[] building[i];
 	}
@@ -124,6 +128,7 @@ Plan &Plan::operator=(Plan &&p) {
 	routers = p.routers;
 	wires = p.wires;
 	backbone = p.backbone;
+	spentMoney = p.spentMoney;
 
 	// delete building
 	for (int i = 0; i < rows; ++i) {
@@ -149,17 +154,18 @@ void Plan::addRouter(Coordinate &c) {
 	// add the router to the grid
 	grid(std::pair<int, int>(c.x / grid.getGridCell_heigth(), c.y / grid.getGridCell_width())).push_back(c);
 	building[c.x][c.y].setRouter(true);
-	vector<Cell*> covCells = coverableCells(c);
+	vector<Cell *> covCells = coverableCells(c);
 	for (Cell *cov:covCells) {
 		Coordinate co = cov->getCoordinate();
 		cov->setCovered(true);
 	}
-
+	spentMoney += routerCost;
 }
 
 void Plan::addWire(Coordinate &c) {
 	wires.push_back(c);
 	building[c.x][c.y].setWired(true);
+	spentMoney += wireCost;
 }
 
 /**
@@ -172,47 +178,47 @@ void Plan::removeRouters(int nbRouterSector, int nbWires) {
 	//Remove the routers
 	Coordinate c;
 	int i = 0;
-	while(i<nbRouterSector && routers.size()>0){
-		
+	while (i < nbRouterSector && routers.size() > 0) {
+
 		c = this->routers.back();
 		if (this->building[c.x][c.y].hasRouter()) {
 			this->building[c.x][c.y].setRouter(false);
-			std::vector<Cell*> reachCell = this->reachableCells(c);
+			std::vector<Cell *> reachCell = this->reachableCells(c);
 			for (auto elem : reachCell) {
 				elem->setCovered(false);
 			}
-		}
-		else {
+		} else {
 			throw std::invalid_argument("Plan::removeRouters : Tried to remove a router where there was not");
-		}		
+		}
 		this->routers.pop_back();
+		spentMoney -= routerCost;
 		i++;
 	}
 	// Check that cells covered by an other router weren't set as not covered
 	for (auto coordinate : routers) {
-		std::vector<Cell*> covCell = coverableCells(coordinate);
+		std::vector<Cell *> covCell = coverableCells(coordinate);
 		for (auto cell : covCell) {
 			cell->setCovered(true);
 		}
 	}
 
-	
+
 	i = 0;
 	//Remove the wires
-	while (i<nbWires && wires.size()>0){
+	while (i < nbWires && wires.size() > 0) {
 		c = this->wires.back();
 		//std::cout << c;
 		if (this->building[c.x][c.y].isWired()) {
 			this->building[c.x][c.y].setWired(false);
-		}
-		else {
+		} else {
 			throw std::invalid_argument("Plan::removeRouters :Tried to remove a wire where there was not");
 		}
 		this->wires.pop_back();
+		spentMoney -= wireCost;
 		i++;
 	}
 
-	
+
 }
 
 
@@ -221,8 +227,8 @@ void Plan::removeRouters(int nbRouterSector, int nbWires) {
  * @param router: coordinate where to place a router. If coordinate isn't a target cell, return is empty.
  * @return list of reachable target cells, including the one where the router is placed.
  */
-vector<Cell*> Plan::reachableCells(const Coordinate &router) {
-	vector<Cell*> cells;
+vector<Cell *> Plan::reachableCells(const Coordinate &router) {
+	vector<Cell *> cells;
 	if (building[router.x][router.y].floorType() == '.') {
 
 		// cases to check
@@ -263,9 +269,9 @@ vector<Cell*> Plan::reachableCells(const Coordinate &router) {
  * @param router: coordinate where to place a router. If coordinate isn't a target cell, return is empty.
  * @return list of coverable target cells, including the one where the router is placed. A coverable cell is a reachable cell that is not covered yet.
  */
-vector<Cell*> Plan::coverableCells(const Coordinate &router) {
-	vector<Cell*> reachableCells = this->reachableCells(router);
-	vector<Cell*> coverableCells;
+vector<Cell *> Plan::coverableCells(const Coordinate &router) {
+	vector<Cell *> reachableCells = this->reachableCells(router);
+	vector<Cell *> coverableCells;
 	for (auto &e: reachableCells) {
 		if (!e->isCovered()) {
 			coverableCells.push_back(e);
@@ -304,11 +310,11 @@ std::ostream &operator<<(std::ostream &os, const Plan &p) {
 
 /**
 * Connect 2 routers with wire
-* @param a: the router from wich we will begin
-* @param b: the router wich is the destination
-* @param money: the money used until now, will be upadta during this method
+* @param a: the router from which we will begin
+* @param b: the router which is the destination
+* @param money: the money used until now, will be updated during this method
 */
-void Plan::link(const Coordinate &a, const Coordinate &b, int &money) {
+void Plan::link(const Coordinate &a, const Coordinate &b) {
 
 	if (a != b) {
 		int deltaX = std::abs(b.x - a.x);
@@ -327,8 +333,7 @@ void Plan::link(const Coordinate &a, const Coordinate &b, int &money) {
 			positionY += directionY;
 			if (this->building[positionX][positionY].isWired()) {
 				wiresToAdd.clear();
-			}
-			else {
+			} else {
 				wiresToAdd.push_back(Coordinate(positionX, positionY));
 			}
 		}
@@ -339,30 +344,26 @@ void Plan::link(const Coordinate &a, const Coordinate &b, int &money) {
 				positionY += directionY;
 				if (this->building[positionX][positionY].isWired()) {
 					wiresToAdd.clear();
-				}
-				else {
+				} else {
 					wiresToAdd.push_back(Coordinate(positionX, positionY));
 				}
 			}
 		}
-		//Move vertical
+			//Move vertical
 		else if (positionY == b.y) {
 			int newDeltaX = std::abs(b.x - positionX);
 			for (int i = 0; i < newDeltaX; i++) {
 				positionX += directionX;
 				if (this->building[positionX][positionY].isWired()) {
 					wiresToAdd.clear();
-				}
-				else {
+				} else {
 					wiresToAdd.push_back(Coordinate(positionX, positionY));
 				}
 			}
 		}
 
-		for (Coordinate wire : wiresToAdd)
-		{
+		for (Coordinate wire : wiresToAdd) {
 			this->addWire(wire);
-			money += this->wireCost;
 		}
 	}
 }
