@@ -171,29 +171,30 @@ void sectorLink(Plan &plan, const std::vector<Coordinate> &listBarycentres, std:
 
 
 /**
-* Do the shortest connection between 2 groups of routers
-* @param wiredGroup: a group of coordinate connected
-* @param unwiredGroup: a group of coordinate not connected
+* Do the shortest connection between a router sector and a list of router sector
+* @param listWiredGroup: a list of router sector already connected
+* @param unwiredGroup: a router sector of coordinate not connected
 * @param p: the plan to work with
 * @return the coordinate of unwiredGroup connected by a wire
 */
-Coordinate linkTwoGroups(Plan &p, const std::vector<Coordinate>& wiredGroup, const std::vector<Coordinate>& unwiredGroup)
+std::pair<Coordinate, Coordinate> linkTwoGroups(Plan &p, const std::list<std::vector<Coordinate>>& listWiredGroup, const std::vector<Coordinate>& unwiredGroup)
 {
-	Coordinate bestWiredToConnect = wiredGroup[0];
+	Coordinate bestWiredToConnect = listWiredGroup.back()[0];
 	Coordinate bestUnwiredToConnect = unwiredGroup[0];
 	int bestDistance = distance(bestWiredToConnect, bestUnwiredToConnect);
-
-	for (auto &wiredCoord : wiredGroup) {
-		for (auto &unwiredCoord : unwiredGroup) {
-			if (distance(wiredCoord, unwiredCoord) < bestDistance) {
-				bestWiredToConnect = wiredCoord;
-				bestUnwiredToConnect = unwiredCoord;
-				bestDistance = distance(bestWiredToConnect, bestUnwiredToConnect);
+	for (auto &wiredGroup : listWiredGroup) {
+		for (auto &wiredCoord : wiredGroup) {
+			for (auto &unwiredCoord : unwiredGroup) {
+				if (distance(wiredCoord, unwiredCoord) < bestDistance) {
+					bestWiredToConnect = wiredCoord;
+					bestUnwiredToConnect = unwiredCoord;
+					bestDistance = distance(bestWiredToConnect, bestUnwiredToConnect);
+				}
 			}
 		}
 	}
 	p.link(bestWiredToConnect, bestUnwiredToConnect);
-	return bestUnwiredToConnect;
+	return std::pair<Coordinate, Coordinate>(bestWiredToConnect,bestUnwiredToConnect);
 }
 
 /**
