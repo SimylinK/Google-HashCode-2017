@@ -9,7 +9,7 @@ std::list<std::pair<int, int>> gridWiring(std::list<std::pair<int, int>> &listSe
 Coordinate computeBarycentre(const std::vector<Coordinate> &listCoord);
 Coordinate argDistMin(const Coordinate &point, const std::vector<Coordinate> &listCoord);
 
-void sectorLink(Plan &plan, const std::vector<Coordinate> &listBarycentres, std::vector<Coordinate> &initialListRouters,
+void sectorLink(Plan &plan, std::vector<Coordinate> &initialListRouters,
 				std::vector<Coordinate> &listConnectedRouters, bool reversedMode);
 
 void recursiveLink(Plan &plan, const Coordinate &router, const std::vector<Coordinate> &listRouters,

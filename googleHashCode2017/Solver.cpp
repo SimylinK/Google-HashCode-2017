@@ -35,12 +35,13 @@ void solveProblem(Plan &p) {
 * @return the list of neighboring router sector, not wired yet
 */
 std::list<std::pair<int, int>> gridWiring(std::list<std::pair<int, int>> &listSectorRouters, Plan &p) {
-	std::vector<Coordinate> listBarycentres;
 	std::vector<Coordinate> sectorRouters;
 	Coordinate currentBary;
-	Coordinate closestBackboneRouter;
 	std::list<std::pair<int, int>> listNeighbSectorRouters;
 
+	std::vector<Coordinate> listConnectedRouters;
+	std::list<std::vector<Coordinate>> listWiredNeighbors;
+	std::pair<Coordinate, Coordinate> closestRoutersPair;
 
 	for (auto coord_sectorRouters : listSectorRouters) {
 		std::cout << "Wiring sector  " << coord_sectorRouters.first << " " << coord_sectorRouters.second << std::endl;
@@ -48,20 +49,24 @@ std::list<std::pair<int, int>> gridWiring(std::list<std::pair<int, int>> &listSe
 
 		if (sectorRouters.size() > 0) {
 
-			std::vector<Coordinate> listConnectedRouters;
+			listConnectedRouters.clear();
+			listWiredNeighbors = { std::vector<Coordinate>({ p.getBackbone() }) };
 
 			currentBary = computeBarycentre(sectorRouters);
-			closestBackboneRouter = argDistMin(p.getBackbone(), sectorRouters);
-			listBarycentres.push_back(currentBary);
+			sectorRouters.push_back(currentBary);
 
-			if (distance(closestBackboneRouter, p.getBackbone()) < distance(currentBary, p.getBackbone())) {
-				p.link(p.getBackbone(), closestBackboneRouter);
-				recursiveLink(p, closestBackboneRouter, sectorRouters, currentBary, listConnectedRouters, true);
-			} else {
-				p.link(p.getBackbone(), currentBary);
+			for (auto &neighb : p.getGrid().getNeighbors(coord_sectorRouters)) {
+				if (p.isGridWired(neighb)){
+					listWiredNeighbors.push_back(p.getGrid()(neighb));
+				}		
 			}
+			
+			closestRoutersPair = linkTwoGroups(p,listWiredNeighbors, sectorRouters);
 
-			sectorLink(p, listBarycentres, sectorRouters, listConnectedRouters, false);
+			p.link(closestRoutersPair.first, closestRoutersPair.second);
+			recursiveLink(p, closestRoutersPair.second, sectorRouters, currentBary, listConnectedRouters, true);
+
+			sectorLink(p, sectorRouters, listConnectedRouters, false);
 		}
 
 		// Add the neighboring sectors not connected, to the list of sectors to wired
@@ -142,19 +147,15 @@ Coordinate argDistMin(const Coordinate &point, const std::vector<Coordinate> &li
 /**
 * Connect a list of routers to one of the barycentres
 * @param plan: the plan to work with
-* @param listBarycentres: the barycentres where we connect the routers
 * @param initialListRouters: list of the rooters to connect to the network
 * @param money: the money used until now, will be upadta during this method
 */
 
-void sectorLink(Plan &plan, const std::vector<Coordinate> &listBarycentres, std::vector<Coordinate> &initialListRouters,
+void sectorLink(Plan &plan, std::vector<Coordinate> &initialListRouters,
 				std::vector<Coordinate> &listConnectedRouters,
 				bool reversedMode) {
 
 	Coordinate barycentre = computeBarycentre(initialListRouters);
-	Coordinate closestBarycentre = argDistMin(barycentre, listBarycentres);
-	plan.link(closestBarycentre, barycentre);
-
 	std::vector<Coordinate> routersToConnect = initialListRouters;
 
 	while (routersToConnect.size() > 0) {
@@ -201,10 +202,7 @@ std::pair<Coordinate, Coordinate> linkTwoGroups(Plan &p, const std::list<std::ve
 * Connect a router to the network
 * @param router: the router to be connected
 * @param listRouters: list of the routers to work with, the method remove the rooter used from this list
-<<<<<<< HEAD
-=======
 * @param money: the money used until now, will be updated during this method
->>>>>>> 9ebb041db391923efd2fcf7f20ee81bd05d53d46
 * @param barycentre: the barycentre of listRouters
 * @param listConnectedRouters: an empty list, this method will add all the routers connected during this method
 */
@@ -217,13 +215,13 @@ void recursiveLink(Plan &plan, const Coordinate &router, const std::vector<Coord
 	std::vector<Coordinate> listCoordinatesForLink = listRouters;
 
 	eraseFromVector(listCoordinatesForLink, router);
-
+	//If the barycentre is already in listCoordinatesForLink, no need to add it again
 	if (std::find(listCoordinatesForLink.begin(), listCoordinatesForLink.end(), barycentre) ==
 		listCoordinatesForLink.end()) {
 		listCoordinatesForLink.push_back(barycentre);
 	}
 
-
+	//router is going to be linked with the closest point (a router or the barycentre)
 	Coordinate closestLinkablePoint = argDistMin(router, listCoordinatesForLink);
 
 	if (reversedMode) {
