@@ -13,7 +13,7 @@ Grid::Grid(const int &nbRows, const int &nbColumns) {
 		}
 	}
 	(nbColumns%nbGridCell_side == 0) ? gridCell_width = nbColumns / nbGridCell_side : gridCell_width = (nbColumns / nbGridCell_side) + 1;
-	(nbRows%nbGridCell_side == 0) ? gridCell_heigth = nbRows / nbGridCell_side : gridCell_width = (nbRows / nbGridCell_side) + 1;
+	(nbRows%nbGridCell_side == 0) ? gridCell_heigth = nbRows / nbGridCell_side : gridCell_heigth = (nbRows / nbGridCell_side) + 1;
 }
 
 Grid::Grid(Grid &g) {
