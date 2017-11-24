@@ -172,7 +172,7 @@ void sectorLink(Plan &plan, const std::vector<Coordinate> &listBarycentres, std:
 		{
 			eraseFromVector(routersToConnect, router);
 		}
-		std::vector<Coordinate> listConnectedRouters;
+		listConnectedRouters.clear();
 	}
 
 }
@@ -201,17 +201,17 @@ void recursiveLink(Plan &plan, const Coordinate &router, const std::vector<Coord
 
 	Coordinate closestLinkablePoint = argDistMin(router, listCoordinatesForLink);
 
-	if (reversedMode == true) {
+	if (reversedMode) {
 		closestLinkablePoint = followWire(plan, closestLinkablePoint, router);
 		plan.link(router, closestLinkablePoint,money);
 	}
 
-	if ((!plan.isWired(closestLinkablePoint) || reversedMode == true) && router != barycentre) {
+	if ((!plan.isWired(closestLinkablePoint) || reversedMode) && router != barycentre) {
 		recursiveLink(plan, closestLinkablePoint, listCoordinatesForLink, money, barycentre, listConnectedRouters, reversedMode);
 	}
 
 
-	if (reversedMode == false) {
+	if (!reversedMode) {
 
 		closestLinkablePoint = followWire(plan, closestLinkablePoint, router);
 		plan.link(closestLinkablePoint, router, money);

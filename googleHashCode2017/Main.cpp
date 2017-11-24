@@ -7,19 +7,13 @@
 
 int main() {
 	Plan p("../inputData/test.in");
-
-	//std::cout << p;
-
 	int money = 0;
 
 	std::cout <<"MaxBudget : "<< p.getMaxBudget() << std::endl;
 	std::cout <<"Router cost "<< p.getRouterCost() << std::endl;
 	std::cout <<"Wire cost " <<p.getWireCost() << std::endl;
-	//placeRoutersIterative(p, 10);
-	//sectorLink(p, listBarycentres, listRouters, money);
 	money = solveProblem(p);
 
-	//std::cout << p;
 	std::cout << "money used : " << money << std::endl;
 
 	// To fill an output file (in notepadd++ you can dezoom to analyse big maps)

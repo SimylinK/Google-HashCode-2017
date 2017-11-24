@@ -173,7 +173,7 @@ void Plan::removeRouters(int nbRouterSector, int nbWires) {
 	while(i<nbRouterSector && routers.size()>0){
 		
 		c = this->routers.back();
-		if (this->building[c.x][c.y].hasRouter() == true) {
+		if (this->building[c.x][c.y].hasRouter()) {
 			this->building[c.x][c.y].setRouter(false);
 			std::vector<Cell*> reachCell = this->reachableCells(c);
 			for (auto elem : reachCell) {
@@ -200,7 +200,7 @@ void Plan::removeRouters(int nbRouterSector, int nbWires) {
 	while (i<nbWires && wires.size()>0){
 		c = this->wires.back();
 		//std::cout << c;
-		if (this->building[c.x][c.y].isWired() == true) {
+		if (this->building[c.x][c.y].isWired()) {
 			this->building[c.x][c.y].setWired(false);
 		}
 		else {
