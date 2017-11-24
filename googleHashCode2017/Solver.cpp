@@ -14,8 +14,6 @@ int solveProblem(Plan &p){
 
 	int spentMoney = 0;
 
-
-
 	std::cout << "Positioning routers" << std::endl;
 	placeRoutersIterative(p, spentMoney);
 	fillGrid(p);
@@ -24,7 +22,6 @@ int solveProblem(Plan &p){
 	//The list of sectors is initialized with the sector containing the backbone
 	std::list<std::pair<int,int>> listSectorRouters{ std::pair<int,int>(p.getBackbone().x / p.getGridCell_heigth(),
 																p.getBackbone().y / p.getGridCell_width()) };
-
 
 	while(listSectorRouters.size() != 0) {
 		std::cout << "--------------------gridWiring--------------------" << std::endl;
@@ -94,22 +91,17 @@ std::list<std::pair<int, int>> gridWiring(std::list<std::pair<int,int>>& listSec
 */
 void placeRoutersIterative(Plan &p, int& spentMoney) {
 	int maxReachableCells = (p.getRouterRange()*2 + 1)*(p.getRouterRange()*2 + 1);
-	int numberPlacedRouters = 0;
-	int i= 0;
-	int j;
-	while (i < p.getRows()){
-		j = 0;
-		while (j < p.getColumns()){
+	int routerCost = p.getRouterCost();
+
+	for (int i = 0; i < p.getRows() && spentMoney < p.getMaxBudget() - routerCost; i++) {
+		for (int j = 0; j < p.getColumns() && spentMoney < p.getMaxBudget() - routerCost; j++) {
 			if (p.coverableCells(Coordinate(i, j)).size() == maxReachableCells) {
 				Coordinate c(i,j);
 				p.addRouter(c);
-				numberPlacedRouters++;		
+				spentMoney += routerCost;
 			}			
-			j++;
 		}
-		i++;
 	}
-	spentMoney += numberPlacedRouters*p.getRouterCost();
 }
 
 /**
@@ -143,7 +135,7 @@ Coordinate argDistMin(const Coordinate &point, const std::vector<Coordinate> &li
 	int min = distance(point, listCoord[0]);
 	Coordinate argMin = listCoord[0];
 
-	for (int index = 0; index < listCoord.size(); index++)
+	for (unsigned int index = 0; index < listCoord.size(); index++)
 	{
 		int dist = distance(point, listCoord[index]);
 		if (dist < min) {
