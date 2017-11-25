@@ -37,3 +37,8 @@ Cell &Cell::operator=(Cell &&c) {
 Cell::~Cell() {
 }
 
+std::ostream &operator<<(std::ostream &o, Cell &c) {
+	o << c.getCoordinate() << " : " << c.floorType();
+
+	return o;
+}

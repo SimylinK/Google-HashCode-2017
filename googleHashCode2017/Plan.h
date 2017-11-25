@@ -32,7 +32,6 @@ public:
 	inline int getMaxBudget(){return maxBudget;}
 	inline Coordinate getBackbone() { return backbone; };
 
-
 	inline bool isWired(const Coordinate &coord) { return building[coord.x][coord.y].isWired(); };
 
 	inline std::vector<Coordinate> getWires() { return wires; }

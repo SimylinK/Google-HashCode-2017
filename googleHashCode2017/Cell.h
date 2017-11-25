@@ -3,8 +3,12 @@
 
 
 #include "Coordinate.h"
+#include <iostream>
 
 class Cell {
+
+	friend std::ostream &operator<<(std::ostream &o, Cell &c);
+
 public:
 	Cell();
 	Cell(Coordinate &coord, const char &c);
@@ -12,6 +16,8 @@ public:
 	Cell(Cell&&);
 	Cell& operator=(const Cell&);
 	Cell& operator=(Cell&&);
+	
+
 	~Cell();
 	// setters and getters
 	inline bool isWired(){return wired;}
@@ -29,9 +35,10 @@ private:
 	bool wired = false;
 	bool router = false;
 	bool covered = false; // true if the case floorType WiFi-covered
-	char environment;
+	char environment; //# or . or -
 
 };
 
+std::ostream &operator<<(std::ostream &o, const Cell &c);
 
 #endif //GOOGLEHASHCODE2017_CELL_H

@@ -151,7 +151,6 @@ void Plan::addRouter(Coordinate &c) {
 		Coordinate co = cov->getCoordinate();
 		cov->setCovered(true);
 	}
-
 }
 
 void Plan::addWire(Coordinate &c) {
