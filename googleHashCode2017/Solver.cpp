@@ -63,7 +63,6 @@ std::list<std::pair<int, int>> gridWiring(std::list<std::pair<int, int>> &listSe
 					listWiredNeighbors.push_back(p.getGrid()(neighb));
 				}
 			}
-
 			closestRoutersPair = linkTwoGroups(p,listWiredNeighbors, sectorRouters);
 
 			p.link(closestRoutersPair.first, closestRoutersPair.second);
@@ -74,7 +73,8 @@ std::list<std::pair<int, int>> gridWiring(std::list<std::pair<int, int>> &listSe
 
 		// Add the neighboring sectors not connected, to the list of sectors to wired
 		for (auto neighRouterSector : p.getGrid().getNeighbors(coord_sectorRouters)) {
-			if (!p.isGridWired(neighRouterSector)) {
+			if (!p.isGridWired(neighRouterSector) 
+				&& std::find(listNeighbSectorRouters.begin(), listNeighbSectorRouters.end(),neighRouterSector) == listNeighbSectorRouters.end()){
 				listNeighbSectorRouters.push_back(neighRouterSector);
 			}
 		}
@@ -211,8 +211,16 @@ void sectorLink(Plan &plan, std::vector<Coordinate> &initialListRouters,
 */
 std::pair<Coordinate, Coordinate> linkTwoGroups(Plan &p, const std::list<std::vector<Coordinate>>& listWiredGroup, const std::vector<Coordinate>& unwiredGroup)
 {
-	Coordinate bestWiredToConnect = listWiredGroup.back()[0];
+	Coordinate bestWiredToConnect;
+	bool foundNonEmptyGroup = false;
+	for (auto it = listWiredGroup.begin(); it != listWiredGroup.end() && !foundNonEmptyGroup;it++){
+		if ((*it).size() != 0) {
+			bestWiredToConnect = (*it)[0];
+			foundNonEmptyGroup = true;
+		}
+	}
 	Coordinate bestUnwiredToConnect = unwiredGroup[0];
+	
 	int bestDistance = distance(bestWiredToConnect, bestUnwiredToConnect);
 	for (auto &wiredGroup : listWiredGroup) {
 		for (auto &wiredCoord : wiredGroup) {
