@@ -5,6 +5,7 @@
 
 void solveProblem(Plan &p);
 void placeRoutersIterative(Plan &p);
+void fillBlanks(Plan &p);
 std::list<std::pair<int, int>> gridWiring(std::list<std::pair<int, int>> &listSectorRouters, Plan &p);
 Coordinate computeBarycentre(const std::vector<Coordinate> &listCoord);
 Coordinate argDistMin(const Coordinate &point, const std::vector<Coordinate> &listCoord);

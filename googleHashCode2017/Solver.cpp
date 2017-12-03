@@ -24,6 +24,9 @@ void solveProblem(Plan &p) {
 		std::cout << "--------------------gridWiring--------------------" << std::endl;
 		listSectorRouters = gridWiring(listSectorRouters, p);
 	}
+
+	fillBlanks(p);
+
 }
 
 
@@ -58,9 +61,9 @@ std::list<std::pair<int, int>> gridWiring(std::list<std::pair<int, int>> &listSe
 			for (auto &neighb : p.getGrid().getNeighbors(coord_sectorRouters)) {
 				if (p.isGridWired(neighb)){
 					listWiredNeighbors.push_back(p.getGrid()(neighb));
-				}		
+				}
 			}
-			
+
 			closestRoutersPair = linkTwoGroups(p,listWiredNeighbors, sectorRouters);
 
 			p.link(closestRoutersPair.first, closestRoutersPair.second);
@@ -100,6 +103,34 @@ void placeRoutersIterative(Plan &p) {
 				p.addRouter(c);
 			}
 		}
+	}
+}
+
+void fillBlanks(Plan &p){
+	std::cout << "--------------------fillingBlanks--------------------" << std::endl;
+	int maxReachableCells = (p.getRouterRange() * 2 + 1) * (p.getRouterRange() * 2 + 1);
+	int routerCost = p.getRouterCost();
+
+	for (int reachableCells = maxReachableCells -1; reachableCells>0; reachableCells--) {
+		int nbRouters = 0;
+		for (int i = 0; i < p.getRows() && p.getSpentMoney() < p.getMaxBudget() - routerCost; i++) {
+			for (int j = 0; j < p.getColumns() && p.getSpentMoney() < p.getMaxBudget() - routerCost; j++) {
+				if (p.coverableCells(Coordinate(i, j)).size() == reachableCells) {
+					Coordinate c(i, j);
+					std::vector<Coordinate> unwiredGroup;
+					std::vector<Coordinate> wiredGroup(p.getGrid()(std::pair<int, int>(c.x / p.getGrid().getGridCell_heigth(), c.y / p.getGrid().getGridCell_width()))); // add routers already present in that part of the grid
+					// then add cables present in this part of the grid
+					std::vector<Coordinate> wiresInSector = p.getWiresInSector(c); // append the wires to the wiredGroup
+					unwiredGroup.push_back(c);
+					std::list<std::vector<Coordinate>> listWiredGroup;
+					listWiredGroup.push_back(wiredGroup);
+					linkTwoGroups(p, listWiredGroup, unwiredGroup);
+					p.addRouter(c);
+					nbRouters++;
+				}
+			}
+		}
+		std::cout << "Positionned " << nbRouters << " routers that cover " << reachableCells << " cells" << std::endl;
 	}
 }
 

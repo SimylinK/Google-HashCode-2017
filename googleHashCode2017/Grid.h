@@ -3,7 +3,7 @@
 #include <vector>
 #include <list>
 #include "Coordinate.h"
-const int nbGridCell_side = 10;
+const int nbGridCell_side =1;
 class Grid {
 
 public:

@@ -367,3 +367,30 @@ void Plan::link(const Coordinate &a, const Coordinate &b) {
 		}
 	}
 }
+
+/**
+ * Gives the list of wired cells in a sector
+ * @param p : a coordinate
+ * @return the list of wired cells in a sector
+ */
+// TODO : add the wires of the sector's neighbors
+std::vector<Coordinate> Plan::getWiresInSector(Coordinate &c){
+	int sectorX = c.x / grid.getGridCell_heigth(); // coordinates of the sector where c is
+	int sectorY = c.y / grid.getGridCell_width();
+
+	int startX = sectorX*grid.getGridCell_heigth(); // coordinates of the start and end of the sector
+	int endX = (sectorX+1)*grid.getGridCell_heigth() - 1;
+	int startY = sectorY*grid.getGridCell_width();
+	int endY = (sectorY+1)*grid.getGridCell_width() - 1;
+	std::vector<Coordinate> wiredCells;
+
+	for(startX; startX<endX; startX++){
+		for(startY; startY<endY; startY++){
+			if(building[startX][startY].isWired()){
+				Coordinate d(startX, startY);
+				wiredCells.push_back(d);
+			}
+		}
+	}
+	return wiredCells;
+}

@@ -36,6 +36,7 @@ public:
 	inline int getSpentMoney(){return spentMoney;}
 	inline Coordinate getBackbone() { return backbone; };
 	inline Grid& getGrid(){return grid;}
+	std::vector<Coordinate> getWiresInSector(Coordinate&);
 
 	inline bool isWired(const Coordinate coord) { return building[coord.x][coord.y].isWired(); };
 	inline bool isGridWired(std::pair<int,int> pair) { return this->grid.isWired(pair); };
@@ -64,8 +65,6 @@ private :
 	Coordinate backbone;
 	std::vector<Coordinate> wires;
 	Grid grid;
-
-
 };
 
 std::ostream &operator<<(std::ostream &os, const Plan &p);
