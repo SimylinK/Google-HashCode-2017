@@ -70,7 +70,8 @@ std::list<std::pair<int, int>> gridWiring(std::list<std::pair<int, int>> &listSe
 
 		// Add the neighboring sectors not connected, to the list of sectors to wired
 		for (auto neighRouterSector : p.getGrid().getNeighbors(coord_sectorRouters)) {
-			if (!p.isGridWired(neighRouterSector)) {
+			if (!p.isGridWired(neighRouterSector) 
+				&& std::find(listNeighbSectorRouters.begin(), listNeighbSectorRouters.end(),neighRouterSector) == listNeighbSectorRouters.end()){
 				listNeighbSectorRouters.push_back(neighRouterSector);
 			}
 		}
