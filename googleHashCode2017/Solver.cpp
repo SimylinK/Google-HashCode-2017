@@ -17,7 +17,7 @@ void solveProblem(Plan &p) {
 
 	std::vector<Coordinate> routers = p.getRouters();
 	gridWiring(routers, p);
-
+	std::cout << "--------------------fillingBlanks--------------------" << std::endl;
 	fillBlanks(p);
 }
 
@@ -38,19 +38,19 @@ void gridWiring(std::vector<Coordinate> &routers, Plan &p) {
 
 	for (auto& router : routers) {
 
-			listConnectedRouters.clear();
-			listWiredNeighbors = { std::vector<Coordinate>({ p.getBackbone() }) };
+		listConnectedRouters.clear();
+		listWiredNeighbors = { std::vector<Coordinate>({ p.getBackbone() }) };
 
-			currentBary = computeBarycentre(routers);
-			routers.push_back(currentBary);
+		currentBary = computeBarycentre(routers);
+		routers.push_back(currentBary);
 
 
-			closestRoutersPair = linkTwoGroups(p,listWiredNeighbors, routers);
+		closestRoutersPair = linkTwoGroups(p,listWiredNeighbors, routers);
 
-			p.link(closestRoutersPair.first, closestRoutersPair.second);
-			recursiveLink(p, closestRoutersPair.second, routers, currentBary, listConnectedRouters, true);
+		p.link(closestRoutersPair.first, closestRoutersPair.second);
+		recursiveLink(p, closestRoutersPair.second, routers, currentBary, listConnectedRouters, true);
 
-			sectorLink(p, routers, listConnectedRouters, false);
+		sectorLink(p, routers, listConnectedRouters, false);
 
 	}
 }
@@ -67,7 +67,7 @@ void placeRoutersIterative(Plan &p) {
 
 	for (int i = 0; i < p.getRows() && p.getSpentMoney() < p.getMaxBudget() - routerCost; i++) {
 		for (int j = 0; j < p.getColumns() && p.getSpentMoney() < p.getMaxBudget() - routerCost; j++) {
-			if (p.coverableCells(Coordinate(i, j)).size() == maxReachableCells) {
+			if (p(i, j).getCoverableCells()>= maxReachableCells) {
 				Coordinate c(i, j);
 				p.addRouter(c);
 			}
@@ -76,7 +76,6 @@ void placeRoutersIterative(Plan &p) {
 }
 
 void fillBlanks(Plan &p){
-	std::cout << "--------------------fillingBlanks--------------------" << std::endl;
 	int maxReachableCells = (p.getRouterRange() * 2 + 1) * (p.getRouterRange() * 2 + 1);
 	int routerCost = p.getRouterCost();
 
@@ -84,7 +83,7 @@ void fillBlanks(Plan &p){
 		int nbRouters = 0;
 		for (int i = 0; i < p.getRows() && p.getSpentMoney() < p.getMaxBudget() - routerCost; i++) {
 			for (int j = 0; j < p.getColumns() && p.getSpentMoney() < p.getMaxBudget() - routerCost; j++) {
-				if (p.coverableCells(Coordinate(i, j)).size() == reachableCells) {
+				if (p(i, j).getCoverableCells() == reachableCells) {
 					Coordinate c(i, j);
 					std::vector<Coordinate> unwiredGroup;
 					std::vector<Coordinate> wiredGroup = p.getRouters(); // add routers already present in that part of the grid
