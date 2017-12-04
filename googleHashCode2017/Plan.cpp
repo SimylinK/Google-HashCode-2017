@@ -371,4 +371,19 @@ void Plan::link(const Coordinate &a, const Coordinate &b) {
 	}
 }
 
+double Plan::percentageCovered() {
+	double numberTargetCells = 0;
+	double numberCoveredCells = 0;
+	for (int i = 0; i < rows; ++i) {
+		for (int j = 0; j < columns; ++j) {
+			if(building[i][j].isCovered()){
+				numberCoveredCells++;
+			}
+			if(building[i][j].floorType() == '.'){
+				numberTargetCells++;
+			}
+		}
+	}
+	return numberCoveredCells/numberTargetCells*100;
+}
 

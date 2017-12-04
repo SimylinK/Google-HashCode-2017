@@ -47,6 +47,7 @@ public:
 	std::vector<Cell*> reachableCells(const Coordinate &c);
 	std::vector<Cell*> coverableCells(const Coordinate &router);
 	void link(const Coordinate &a, const Coordinate &b);
+	double percentageCovered();
 
 private :
 	int rows;
