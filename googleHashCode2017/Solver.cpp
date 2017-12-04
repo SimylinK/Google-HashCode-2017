@@ -11,22 +11,14 @@
 */
 void solveProblem(Plan &p) {
 
-	std::cout << "Positioning routers" << std::endl;
+	std::cout << "--------------------Positioning routers--------------------" << std::endl;
 	placeRoutersIterative(p);
-	std::cout << "Positioning wires" << std::endl;
+	std::cout << "--------------------Positioning wires--------------------" << std::endl;
 
-	//The list of sectors is initialized with the sector containing the backbone
-	std::list<std::pair<int, int>> listSectorRouters{
-			std::pair<int, int>(p.getBackbone().x / p.getGrid().getGridCell_heigth(),
-								p.getBackbone().y / p.getGrid().getGridCell_width())};
-
-	while (listSectorRouters.size() != 0) {
-		std::cout << "--------------------gridWiring--------------------" << std::endl;
-		listSectorRouters = gridWiring(listSectorRouters, p);
-	}
+	std::vector<Coordinate> routers = p.getRouters();
+	gridWiring(routers, p);
 
 	fillBlanks(p);
-
 }
 
 
@@ -37,53 +29,30 @@ void solveProblem(Plan &p) {
 * @param spentMoney : the money used until now, will be updated during this method
 * @return the list of neighboring router sector, not wired yet
 */
-std::list<std::pair<int, int>> gridWiring(std::list<std::pair<int, int>> &listSectorRouters, Plan &p) {
-	std::vector<Coordinate> sectorRouters;
+void gridWiring(std::vector<Coordinate> &routers, Plan &p) {
 	Coordinate currentBary;
-	std::list<std::pair<int, int>> listNeighbSectorRouters;
 
 	std::vector<Coordinate> listConnectedRouters;
 	std::list<std::vector<Coordinate>> listWiredNeighbors;
 	std::pair<Coordinate, Coordinate> closestRoutersPair;
 
-	for (auto coord_sectorRouters : listSectorRouters) {
-		std::cout << "Wiring sector  " << coord_sectorRouters.first << " " << coord_sectorRouters.second << std::endl;
-		sectorRouters = p.getGrid()(coord_sectorRouters);
-
-		if (sectorRouters.size() > 0) {
+	for (auto& router : routers) {
 
 			listConnectedRouters.clear();
 			listWiredNeighbors = { std::vector<Coordinate>({ p.getBackbone() }) };
 
-			currentBary = computeBarycentre(sectorRouters);
-			sectorRouters.push_back(currentBary);
+			currentBary = computeBarycentre(routers);
+			routers.push_back(currentBary);
 
-			for (auto &neighb : p.getGrid().getNeighbors(coord_sectorRouters)) {
-				if (p.isGridWired(neighb)){
-					listWiredNeighbors.push_back(p.getGrid()(neighb));
-				}
-			}
-			closestRoutersPair = linkTwoGroups(p,listWiredNeighbors, sectorRouters);
+
+			closestRoutersPair = linkTwoGroups(p,listWiredNeighbors, routers);
 
 			p.link(closestRoutersPair.first, closestRoutersPair.second);
-			recursiveLink(p, closestRoutersPair.second, sectorRouters, currentBary, listConnectedRouters, true);
+			recursiveLink(p, closestRoutersPair.second, routers, currentBary, listConnectedRouters, true);
 
-			sectorLink(p, sectorRouters, listConnectedRouters, false);
-		}
+			sectorLink(p, routers, listConnectedRouters, false);
 
-		// Add the neighboring sectors not connected, to the list of sectors to wired
-		for (auto neighRouterSector : p.getGrid().getNeighbors(coord_sectorRouters)) {
-			if (!p.isGridWired(neighRouterSector) 
-				&& std::find(listNeighbSectorRouters.begin(), listNeighbSectorRouters.end(),neighRouterSector) == listNeighbSectorRouters.end()){
-				listNeighbSectorRouters.push_back(neighRouterSector);
-			}
-		}
-		// Remove the double sectors in the list
-		listNeighbSectorRouters.unique();
-		p.getGrid().setWired(coord_sectorRouters, true);
 	}
-
-	return listNeighbSectorRouters;
 }
 
 
@@ -118,9 +87,11 @@ void fillBlanks(Plan &p){
 				if (p.coverableCells(Coordinate(i, j)).size() == reachableCells) {
 					Coordinate c(i, j);
 					std::vector<Coordinate> unwiredGroup;
-					std::vector<Coordinate> wiredGroup(p.getGrid()(std::pair<int, int>(c.x / p.getGrid().getGridCell_heigth(), c.y / p.getGrid().getGridCell_width()))); // add routers already present in that part of the grid
+					std::vector<Coordinate> wiredGroup = p.getRouters(); // add routers already present in that part of the grid
 					// then add cables present in this part of the grid
-					std::vector<Coordinate> wiresInSector = p.getWiresInSector(c); // append the wires to the wiredGroup
+					for (auto& wire : p.getWires()){
+						wiredGroup.push_back(wire);
+					}
 					unwiredGroup.push_back(c);
 					std::list<std::vector<Coordinate>> listWiredGroup;
 					listWiredGroup.push_back(wiredGroup);
@@ -240,8 +211,7 @@ std::pair<Coordinate, Coordinate> linkTwoGroups(Plan &p, const std::list<std::ve
 /**
 * Connect a router to the network
 * @param router: the router to be connected
-* @param listRouters: list of the routers to work with, the method remove the rooter used from this list
-* @param money: the money used until now, will be updated during this method
+* @param listRouters: list of the routers to work with, the method removes the wired routers from this list
 * @param barycentre: the barycentre of listRouters
 * @param listConnectedRouters: an empty list, this method will add all the routers connected during this method
 */

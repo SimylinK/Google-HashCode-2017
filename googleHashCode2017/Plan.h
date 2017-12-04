@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Grid.h"
 #include "Coordinate.h"
 #include "Cell.h"
 
@@ -35,11 +34,8 @@ public:
 	inline int getMaxBudget(){return maxBudget;}
 	inline int getSpentMoney(){return spentMoney;}
 	inline Coordinate getBackbone() { return backbone; };
-	inline Grid& getGrid(){return grid;}
-	std::vector<Coordinate> getWiresInSector(Coordinate&);
 
 	inline bool isWired(const Coordinate coord) { return building[coord.x][coord.y].isWired(); };
-	inline bool isGridWired(std::pair<int,int> pair) { return this->grid.isWired(pair); };
 
 	inline std::vector<Coordinate> getWires() { return wires; }
 	inline std::vector<Coordinate> getRouters() { return routers; }
@@ -64,7 +60,6 @@ private :
 	std::vector<Coordinate> routers;
 	Coordinate backbone;
 	std::vector<Coordinate> wires;
-	Grid grid;
 };
 
 std::ostream &operator<<(std::ostream &os, const Plan &p);
