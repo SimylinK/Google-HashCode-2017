@@ -49,6 +49,11 @@ Plan::Plan(string inputFile) {
 		cout << "Unable to open input file : " << inputFile << endl;
 	}
 
+	for(int i=0; i<rows; i++){
+		for (int j=0; j<columns; j++){
+			building[i][j].setCoverableCells(coverableCells(Coordinate(i, j)));
+		}
+	}
 	spentMoney = 0;
 }
 
@@ -365,4 +370,5 @@ void Plan::link(const Coordinate &a, const Coordinate &b) {
 		}
 	}
 }
+
 

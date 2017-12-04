@@ -37,3 +37,13 @@ Cell &Cell::operator=(Cell &&c) {
 Cell::~Cell() {
 }
 
+int Cell::getCoverableCells() {
+	int coverable = 0;
+	for (auto& elem : coverableCells){
+		if(!elem->isCovered()){
+			coverable++;
+		}
+	}
+	return coverable;
+}
+
