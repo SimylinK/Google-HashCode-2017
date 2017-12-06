@@ -8,7 +8,7 @@ void placeRoutersIterative(Plan &p);
 void fillBlanks(Plan &p);
 std::list<std::pair<int, int>> gridWiring(std::list<std::pair<int, int>> &listSectorRouters, Plan &p);
 Coordinate computeBarycentre(const std::vector<Coordinate> &listCoord);
-Coordinate argDistMin(const Coordinate &point, const std::vector<Coordinate> &listCoord);
+Coordinate bestToWire(const Plan & p, const Coordinate &point, const std::vector<Coordinate> &listCoord, const Coordinate & bary);
 
 void sectorLink(Plan &plan, std::vector<Coordinate> &initialListRouters,
 				std::vector<Coordinate> &listConnectedRouters, bool reversedMode);

@@ -25,7 +25,7 @@ void solveProblem(Plan &p) {
 		listSectorRouters = gridWiring(listSectorRouters, p);
 	}
 
-	fillBlanks(p);
+	//fillBlanks(p);
 
 }
 
@@ -154,25 +154,54 @@ Coordinate computeBarycentre(const std::vector<Coordinate> &listCoord) {
 }
 
 /**
-* Find the coordinate object in a list that minimizes the distance with a coordinate object passed as parameter
+* Find the coordinate object in a list that is the best to link with a coordinate object
+* @param p : the plan to work with
 * @param point: the point to minimize the distance with
 * @param listCoord: a list of the points to minize the distance with
+* @param bary : the barycentre of the sector
 * @return the Coordinate with the minimal distance to the point
 */
-Coordinate argDistMin(const Coordinate &point, const std::vector<Coordinate> &listCoord) {
+Coordinate bestToWire(Plan &p, const Coordinate &point, const std::vector<Coordinate> &listCoord, const Coordinate & bary) {
 	if (listCoord.size() == 0) throw std::invalid_argument("Plan::argDistMin : La liste est vide");
 
-	int min = distance(point, listCoord[0]);
-	Coordinate argMin = listCoord[0];
+	std::vector<Coordinate> clistCoord = listCoord;
+	int min;
+	Coordinate argMin;
+	bool closerFromBarycentre = false;
+	int distArgmin_bary;
+	int distPoint_bary;
+	while (!closerFromBarycentre && clistCoord.size()>0) {
+		min = distance(point, clistCoord[0]);
+		argMin = clistCoord[0];
+		//Looking for the closest router
+		for (unsigned int index = 0; index < clistCoord.size(); index++) {
+			
+			int dist = distance(point, clistCoord[index]);
+			if (dist < min) {
+				min = dist;
+				argMin = clistCoord[index];
+			}
+		}
 
-	for (unsigned int index = 0; index < listCoord.size(); index++) {
-		int dist = distance(point, listCoord[index]);
-		if (dist < min) {
-			min = dist;
-			argMin = listCoord[index];
+		distArgmin_bary = distance(argMin, bary);
+		distPoint_bary = distance(point, bary);
+
+		//If the closest router is closer from the barycentre
+		//or if the closest router is already wired
+		//it is the best to wire with
+		if (distArgmin_bary < distPoint_bary || p.isWired(argMin)) {
+			closerFromBarycentre = true;
+		}else {
+		//Else the closest router is removed and the loop restart so the next closest router is found
+			eraseFromVector(clistCoord,argMin);
 		}
 	}
-	return argMin;
+	if (clistCoord.size() == 0) {
+		return bary;
+	}
+	else {
+		return argMin;
+	}
 }
 
 /**
@@ -261,7 +290,7 @@ void recursiveLink(Plan &plan, const Coordinate &router, const std::vector<Coord
 	}
 
 	//router is going to be linked with the closest point (a router or the barycentre)
-	Coordinate closestLinkablePoint = argDistMin(router, listCoordinatesForLink);
+	Coordinate closestLinkablePoint = bestToWire(plan,router, listCoordinatesForLink, barycentre);
 
 	if (reversedMode) {
 		closestLinkablePoint = followWire(plan, closestLinkablePoint, router);
@@ -359,18 +388,15 @@ Coordinate followWire(Plan &plan, const Coordinate &startRouter, const Coordinat
 void eraseFromVector(std::vector<Coordinate> &vector, const Coordinate &coord) {
 
 	std::vector<Coordinate>::iterator it;
-
 	it = std::find(vector.begin(), vector.end(), coord);
 	if (it < vector.end()) {
 		vector.erase(it);
 	}
-
 }
 
 void eraseFromVector(std::vector<Coordinate> &vector, std::vector<Coordinate> &vectorToRemove) {
 
 	for (auto it = vectorToRemove.begin(); it != vectorToRemove.end(); it++) {
-		//std::cout << "Trying to remove " << *it << " from : " << std::endl << vector;
 		eraseFromVector(vector, *it);
 
 	}
