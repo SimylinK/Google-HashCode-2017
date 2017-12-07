@@ -27,7 +27,8 @@ public:
 	inline char floorType() { return environment; }
 	inline void setEnvironment(const char &c) { environment = c; }
 	inline void setCoverableCells(std::vector<Cell*> c) { coverableCells = c; }
-	int getCoverableCells();
+	inline std::vector<Cell*> getCoverableCells(){return coverableCells;}
+	int getNumberOfCoverableCells();
 
 private:
 	Coordinate coordinate;
