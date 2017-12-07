@@ -220,8 +220,6 @@ void Plan::removeRouters(int nbRouterSector, int nbWires) {
 		spentMoney -= wireCost;
 		i++;
 	}
-
-
 }
 
 
@@ -295,9 +293,12 @@ std::ostream &operator<<(std::ostream &os, const Plan &p) {
 			if (i == p.backbone.x && j == p.backbone.y) {
 				os << 'B';
 			}
-			if (p(i, j).hasRouter()) {
+			if (p(i, j).hasRouter() && p(i,j).isWired()) {
 				os << 'R';
-			} else if (p(i, j).isWired()) {
+			} else if(p(i, j).hasRouter() && !p(i,j).isWired()) {
+				os << 'U';
+			}
+			else if (p(i, j).isWired()) {
 				os << '|';
 			} else if (p(i, j).isCovered()) {
 				os << '*';
@@ -317,7 +318,8 @@ std::ostream &operator<<(std::ostream &os, const Plan &p) {
 * @param b: the router which is the destination
 * @param money: the money used until now, will be updated during this method
 */
-void Plan::link(const Coordinate &a, const Coordinate &b) {
+std::vector<Coordinate> Plan::link(const Coordinate &a, const Coordinate &b) {
+	vector<Coordinate> wiresToAdd;
 
 	if (a != b) {
 		int deltaX = std::abs(b.x - a.x);
@@ -326,11 +328,10 @@ void Plan::link(const Coordinate &a, const Coordinate &b) {
 		if (deltaY == 0) deltaY = 1;
 		int directionX = (b.x - a.x) / deltaX;
 		int directionY = (b.y - a.y) / deltaY;
-
 		int positionX = a.x;
 		int positionY = a.y;
+
 		// Move diagonal
-		vector<Coordinate> wiresToAdd;
 		for (int i = 0; i < min(deltaX, deltaY); i++) {
 			positionX += directionX;
 			positionY += directionY;
@@ -369,6 +370,7 @@ void Plan::link(const Coordinate &a, const Coordinate &b) {
 			this->addWire(wire);
 		}
 	}
+	return wiresToAdd;
 }
 
 double Plan::percentageCovered() {
@@ -386,4 +388,3 @@ double Plan::percentageCovered() {
 	}
 	return numberCoveredCells/numberTargetCells*100;
 }
-

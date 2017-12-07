@@ -33,12 +33,17 @@ public:
 	inline int getRouterCost(){return routerCost;}
 	inline int getMaxBudget(){return maxBudget;}
 	inline int getSpentMoney(){return spentMoney;}
+	void setSpentMoney(int m){spentMoney = m;}
 	inline Coordinate getBackbone() { return backbone; };
 
 	inline bool isWired(const Coordinate coord) { return building[coord.x][coord.y].isWired(); };
 
 	inline std::vector<Coordinate> getWires() { return wires; }
+	void setWires(std::vector<Coordinate>& w) { wires = w; }
+
 	inline std::vector<Coordinate> getRouters() { return routers; }
+	void setRouters(std::vector<Coordinate>& r) { routers = r; }
+
 
 
 	void addRouter(Coordinate &c);
@@ -46,7 +51,7 @@ public:
 	void removeRouters(int nbRouterSector, int nbWires);
 	std::vector<Cell*> reachableCells(const Coordinate &c);
 	std::vector<Cell*> coverableCells(const Coordinate &router);
-	void link(const Coordinate &a, const Coordinate &b);
+	std::vector<Coordinate> link(const Coordinate &a, const Coordinate &b);
 	double percentageCovered();
 
 private :
