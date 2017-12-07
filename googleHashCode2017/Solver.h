@@ -4,22 +4,19 @@
 #include "Plan.h"
 
 void solveProblem(Plan &p);
-void placeRoutersIterative(Plan &p);
+std::vector<Coordinate> placeRoutersIterative(Plan &p);
 void fillBlanks(Plan &p);
-void gridWiring(std::vector<Coordinate> &routers, Plan &p);
-Coordinate computeBarycentre(const std::vector<Coordinate> &listCoord);
 Coordinate argDistMin(const Coordinate &point, const std::vector<Coordinate> &listCoord);
-
-void sectorLink(Plan &plan, std::vector<Coordinate> &initialListRouters,
-				std::vector<Coordinate> &listConnectedRouters, bool reversedMode);
-
-void recursiveLink(Plan &plan, const Coordinate &router, const std::vector<Coordinate> &listRouters,
-				   const Coordinate &barycentre, std::vector<Coordinate> &listConnectedRouters, bool reversedMode);
 Coordinate followWire(Plan &plan, const Coordinate &startRouter, const Coordinate &targetRouter);
-std::pair<Coordinate, Coordinate> linkTwoGroups(Plan &p, const std::list<std::vector<Coordinate>>& listWiredGroup, const std::vector<Coordinate> &unwiredGroup);
-
 void eraseFromVector(std::vector<Coordinate> &vector, const Coordinate &coord);
 void eraseFromVector(std::vector<Coordinate> &vector, std::vector<Coordinate> &vectorToRemove);
+
+
+void linkRouters(Plan &p);
+bool linkStratTwo(Plan &p);
+
+std::pair<Coordinate, Coordinate> minTwoGroups(std::vector<Coordinate> alreadyLinked, std::vector<Coordinate> toLink);
+
 
 std::ostream &operator<<(std::ostream &o, std::vector<Coordinate> &vector);
 
