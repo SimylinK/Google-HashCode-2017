@@ -47,3 +47,13 @@ int Cell::getNumberOfCoverableCells() {
 	return coverable;
 }
 
+std::vector<Cell *> Cell::getCoverableCells() {
+	std::vector<Cell *> cells;
+	for (auto& elem : coverableCells){
+		if(!elem->isCovered()){
+			cells.push_back(elem);
+		}
+	}
+	return cells;
+}
+

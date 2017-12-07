@@ -27,7 +27,7 @@ public:
 	inline char floorType() { return environment; }
 	inline void setEnvironment(const char &c) { environment = c; }
 	inline void setCoverableCells(std::vector<Cell*> c) { coverableCells = c; }
-	inline std::vector<Cell*> getCoverableCells(){return coverableCells;}
+	std::vector<Cell*> getCoverableCells();
 	int getNumberOfCoverableCells();
 
 private:

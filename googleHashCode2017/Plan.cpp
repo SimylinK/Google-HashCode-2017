@@ -9,7 +9,7 @@ using namespace std;
 Plan::Plan() {}
 
 Plan::Plan(string inputFile) {
-
+	std::cout << "--------------------Parsing--------------------" << std::endl;
 	string line;
 	ifstream file(inputFile);
 	if (file.is_open()) {
@@ -51,7 +51,7 @@ Plan::Plan(string inputFile) {
 
 	for(int i=0; i<rows; i++){
 		for (int j=0; j<columns; j++){
-			building[i][j].setCoverableCells(coverableCells(Coordinate(i, j)));
+			building[i][j].setCoverableCells(reachableCells(Coordinate(i, j))); // no need to check if the cells are covered, since there isn't any router yet
 		}
 	}
 	spentMoney = 0;
@@ -157,7 +157,7 @@ void Plan::addRouter(Coordinate &c) {
 	routers.push_back(c);
 	// add the router to the grid
 	building[c.x][c.y].setRouter(true);
-	vector<Cell *> covCells = coverableCells(c);
+	vector<Cell *> covCells = building[c.x][c.y].getCoverableCells();
 	for (Cell *cov:covCells) {
 		Coordinate co = cov->getCoordinate();
 		cov->setCovered(true);
@@ -186,8 +186,8 @@ void Plan::removeRouters(int nbRouterSector, int nbWires) {
 		c = this->routers.back();
 		if (this->building[c.x][c.y].hasRouter()) {
 			this->building[c.x][c.y].setRouter(false);
-			std::vector<Cell *> reachCell = this->reachableCells(c);
-			for (auto elem : reachCell) {
+			std::vector<Cell *> coverableCells = building[c.x][c.y].getCoverableCells();
+			for (auto& elem : coverableCells) {
 				elem->setCovered(false);
 			}
 		} else {
@@ -198,8 +198,8 @@ void Plan::removeRouters(int nbRouterSector, int nbWires) {
 		i++;
 	}
 	// Check that cells covered by an other router weren't set as not covered
-	for (auto coordinate : routers) {
-		std::vector<Cell *> covCell = coverableCells(coordinate);
+	for (auto& coordinate : routers) {
+		std::vector<Cell *> covCell = building[coordinate.x][coordinate.y].getCoverableCells();
 		for (auto cell : covCell) {
 			cell->setCovered(true);
 		}
@@ -263,22 +263,6 @@ vector<Cell *> Plan::reachableCells(const Coordinate &router) {
 		}
 	}
 	return cells;
-}
-
-/**
- *
- * @param router: coordinate where to place a router. If coordinate isn't a target cell, return is empty.
- * @return list of coverable target cells, including the one where the router is placed. A coverable cell is a reachable cell that is not covered yet.
- */
-vector<Cell *> Plan::coverableCells(const Coordinate &router) {
-	vector<Cell *> reachableCells = this->reachableCells(router);
-	vector<Cell *> coverableCells;
-	for (auto &e: reachableCells) {
-		if (!e->isCovered()) {
-			coverableCells.push_back(e);
-		}
-	}
-	return coverableCells;
 }
 
 /**
@@ -373,6 +357,10 @@ std::vector<Coordinate> Plan::link(const Coordinate &a, const Coordinate &b) {
 	return wiresToAdd;
 }
 
+/**
+ *
+ * @return the percentage of covered target cells on the map
+ */
 double Plan::percentageCovered() {
 	double numberTargetCells = 0;
 	double numberCoveredCells = 0;
