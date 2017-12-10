@@ -12,17 +12,6 @@ int main() {
 	
 
 	Plan p(inputFile);
-	solveProblem(p, 9);
-
-
-	
-
-	try {
-		output(p, "../outputFile.out");
-	}
-	catch (std::exception e) {
-		std::cout << e.what();
-	}
 
 //	Referee a("../outputFile.out", inputFile);
 
