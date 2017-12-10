@@ -217,7 +217,7 @@ bool Referee::testValidity() {
 	int budgetUsed = routers.size() * plan.getRouterCost() + cellsConnected.size() * plan.getWireCost();
 	if (plan.getMaxBudget() < budgetUsed) {
 		valid = false;
-		std::cout << "the max budget is exceeded" << std::endl;
+		std::cout << "the max budget is exceeded (max budget = " << plan.getMaxBudget() << ", budget used = " << budgetUsed << ")" << std::endl;
 	}
 
 	return valid;
