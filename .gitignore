@@ -8,6 +8,7 @@ googleHashCode2017.sln
 googleHashCode2017.VC.VC.opendb
 googleHashCode2017_Arbitre/googleHashCode2017_Arbitre.vcxproj
 googleHashCode2017_Arbitre/googleHashCode2017_Arbitre.vcxproj.filters
+.vs/
 
 # Output
 outputFile.out
