@@ -178,23 +178,35 @@ bool Referee::testValidity() {
 	previousCell = backboneCell;
 
 	//each router has to be connected
-	if (nbCellsConnected < nbRouters) valid = false;
+	if (nbCellsConnected < nbRouters) {
+		valid = false;
+		std::cout << "nbCellsConnected < nbRouters" << std::endl;
+	}
 
 	//each cell has to be connected to the backbone or to the previous cell
 	for (Coordinate &co : cellsConnected) {
-		if (!areNeighbors(co, backboneCell) && !areNeighbors(co, previousCell)) valid = false;
+		if (!areNeighbors(co, backboneCell) && !areNeighbors(co, previousCell)) {
+			valid = false;
+			std::cout << "a cell isn't connected to the backbone nor to the previous cell - " << co << "and the backbone is : " << backboneCell << std::endl;
+		}
 
 		previousCell = co;
 	}
 
 	//a router can't be on a wall cell nor on a void cell, only on a target cell .
 	for (Coordinate &co : routers) {
-		if ((plan(co.x, co.y)).floorType() != '.') valid = false;
+		if ((plan(co.x, co.y)).floorType() != '.') {
+			valid = false;
+			std::cout << "a router is on a wall cell or on a void cell" << std::endl;
+		}
 	}
 
 	//the budget max cannot be exceeded
 	int budgetUsed = routers.size() * plan.getRouterCost() + cellsConnected.size() * plan.getWireCost();
-	if (plan.getMaxBudget() < budgetUsed) valid = false;
+	if (plan.getMaxBudget() < budgetUsed) {
+		valid = false;
+		std::cout << "the budget max is exceeded" << std::endl;
+	}
 
 	return valid;
 }

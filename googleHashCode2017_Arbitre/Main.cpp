@@ -8,9 +8,27 @@
 
 int main() {
 
-	Referee a("../outputFile.out", "../inputData/test.in");
+	std::string inputFile = "../inputData/opera.in";
+	
 
-	std::cout << "Score = " << a.calculateScore() << std::endl;
+	Plan p(inputFile);
+	solveProblem(p, 9);
+
+
+	
+
+	try {
+		output(p, "../outputFile.out");
+	}
+	catch (std::exception e) {
+		std::cout << e.what();
+	}
+
+//	Referee a("../outputFile.out", inputFile);
+
+//	std::cout << a;
+
+//	std::cout << "Score = " << a.calculateScore() << std::endl;
 
 	return 0;
 }
