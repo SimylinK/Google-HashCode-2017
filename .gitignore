@@ -9,6 +9,7 @@ googleHashCode2017.VC.VC.opendb
 googleHashCode2017_Arbitre/googleHashCode2017_Arbitre.vcxproj
 googleHashCode2017_Arbitre/googleHashCode2017_Arbitre.vcxproj.filters
 .vs/
+*.sln.docstates
 
 # Output
 outputFile.out
