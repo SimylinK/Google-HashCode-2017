@@ -33,9 +33,6 @@
     <ClCompile Include="Cell.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
-    <ClCompile Include="Grid.cpp">
-	  <Filter>Fichiers sources</Filter>
-    </ClCompile>
     <ClCompile Include="Output.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
@@ -61,9 +58,6 @@
     </ClInclude>
     <ClInclude Include="utility.h">
       <Filter>Fichiers d%27en-tête</Filter>
-    </ClInclude>
-    <ClInclude Include="Grid.h">
-	  <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
     <ClInclude Include="Count.h">
       <Filter>Fichiers d%27en-tête</Filter>

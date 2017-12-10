@@ -148,8 +148,7 @@
   <ItemGroup>
     <ClCompile Include="Cell.cpp" />
     <ClCompile Include="Coordinate.cpp" />
-	<ClCompile Include="Count.cpp" />
-    <ClCompile Include="Grid.cpp" />
+    <ClCompile Include="Count.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Output.cpp" />
     <ClCompile Include="Plan.cpp" />
@@ -160,7 +159,6 @@
     <ClInclude Include="Cell.h" />
     <ClInclude Include="Coordinate.h" />
     <ClInclude Include="Count.h" />
-	<ClInclude Include="Grid.h" />
     <ClInclude Include="Output.h" />
     <ClInclude Include="Plan.h" />
     <ClInclude Include="Solver.h" />
