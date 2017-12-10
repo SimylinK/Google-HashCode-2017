@@ -1,9 +1,22 @@
 #include"Count.h"
 
+/**
+* choose use which way 0 or 1
+* default way =0 use clock() unit is s 
+* way =1 or other numbers use time(&argument) unit is s
+* attention : in linux maybe clock() doesn't work always return 0 , so you can use the other way
+* @param w: 0 or 1 
+* @return null
+*/
 Count::Count(int w):way(w)
 {
 }
 
+/**
+* start the timer
+* @param null
+* @return null
+*/
 void Count::startTimer()
 {
 	if (way == 0)
@@ -12,6 +25,11 @@ void Count::startTimer()
 		time(&tstart);
 }
 
+/**
+* stop the timer and save the running time
+* @param null
+* @return null
+*/
 void Count::stopTimer()
 {
 	double cost;
@@ -28,6 +46,11 @@ void Count::stopTimer()
 	times.push_back(cost);
 }
 
+/**
+* get the average value of these running times
+* @param null
+* @return the average value
+*/
 double Count::getAverageRunningTime() {
 	double sum = std::accumulate(std::begin(times), std::end(times), 0.0);
 	std::cout << "The average of Running Time is " << sum / times.size() << "s" << std::endl;
@@ -37,6 +60,12 @@ double Count::getAverageRunningTime() {
 		return 0;
 }
 
+/**
+* get all paths of files in the target folder
+* @param path : the path of target folder
+* @param files : the path of each file in the target folder
+* @return null
+*/
 void Count::getFiles(std::string path, std::vector<std::string>& files)
 { 
 	long   hFile = 0;//File handle
@@ -67,6 +96,11 @@ void Count::getFiles(std::string path, std::vector<std::string>& files)
 	}
 }
 
+/**
+* run all exe
+* @param path : the path of target folder
+* @return null
+*/
 void Count::runAllExe(const std::string& path){
 	std::string filePath = path;
 	std::vector<std::string> fileNames;
