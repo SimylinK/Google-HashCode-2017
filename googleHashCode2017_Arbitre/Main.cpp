@@ -8,16 +8,17 @@
 
 int main() {
 
-	std::string inputFile = "../inputData/opera.in";
+	std::string map = "charleston_road";
+	std::string inputFile = "../inputData/" + map + ".in";
 	
 
 	Plan p(inputFile);
 
-//	Referee a("../outputFile.out", inputFile);
+	Referee a("../" + map + ".out", inputFile);
 
-//	std::cout << a;
+//	std::cout << a << std::endl;
 
-//	std::cout << "Score = " << a.calculateScore() << std::endl;
+	std::cout << "Score = " << a.calculateScore() << std::endl;
 
 	return 0;
 }

@@ -6,6 +6,8 @@
 #include <vector>
 #include <string>
 #include <exception>
+#include <iterator>
+#include <algorithm>
 
 /**
 * Determines if two cells are respectively neighbors, which means the distance between them equals 1 or less
@@ -185,9 +187,19 @@ bool Referee::testValidity() {
 
 	//each cell has to be connected to the backbone or to the previous cell
 	for (Coordinate &co : cellsConnected) {
-		if (!areNeighbors(co, backboneCell) && !areNeighbors(co, previousCell)) {
+		bool neighborFound = false;
+		if (!areNeighbors(co, backboneCell)){
+			for (std::vector<Coordinate>::iterator it = cellsConnected.begin(); it != std::find(std::begin(cellsConnected), std::end(cellsConnected), co); ++it) { //iterates from the first to the current cell
+				if (areNeighbors(co, *it)) { //looks for a neighbor
+					neighborFound = true;
+				}
+			}
+		}
+		else neighborFound = true;
+
+		if (!neighborFound) {
 			valid = false;
-			std::cout << "a cell isn't connected to the backbone nor to the previous cell - " << co << "and the backbone is : " << backboneCell << std::endl;
+			std::cout << "a cell isn't connected to the backbone nor to the previous cell - " << co << ", backbone : " << backboneCell << " previous cell : " << previousCell << std::endl;
 		}
 
 		previousCell = co;
@@ -222,7 +234,7 @@ int Referee::calculateScore() {
 	int routerCost = plan.getRouterCost();
 
 	testValidity();
-	if (valid) score = 1000 * nbCellsCovered + (budget - nbCellsConnected * wireCost - nbRouters * routerCost);
+	if (valid) score = 1000 * nbCellsCovered + (budget - (nbCellsConnected * wireCost + nbRouters * routerCost));
 
 	return score;
 }
