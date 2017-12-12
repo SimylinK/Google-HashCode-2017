@@ -78,7 +78,7 @@ Referee::Referee(std::string outputFile, std::string inputFile) :
 	}
 		
 	else {
-		std::cout << "Unable to open input file : " << outputFile << std::endl;
+		std::cout << "Unable to open output file : " << outputFile << std::endl;
 	}
 }
 
@@ -181,7 +181,7 @@ bool Referee::testValidity() {
 	//each router has to be connected
 	if (nbCellsConnected < nbRouters) {
 		valid = false;
-		std::cout << "nbCellsConnected < nbRouters" << std::endl;
+		std::cout << "There are less connected cells than routers" << std::endl;
 	}
 
 	//each cell has to be connected to the backbone or to the previous cell
@@ -198,7 +198,7 @@ bool Referee::testValidity() {
 
 		if (!neighborFound) {
 			valid = false;
-			std::cout << "a cell isn't connected to the backbone nor to the previous cell - " << co << ", backbone : " << backboneCell << " previous cell : " << previousCell << std::endl;
+			std::cout << "A cell isn't connected to the backbone nor to the previous cell - " << co << ", backbone : " << backboneCell << " previous cell : " << previousCell << std::endl;
 		}
 
 		previousCell = co;
@@ -208,7 +208,7 @@ bool Referee::testValidity() {
 	for (Coordinate &co : routers) {
 		if ((plan(co.x, co.y)).floorType() != '.') {
 			valid = false;
-			std::cout << "a router is on a wall cell or on a void cell" << std::endl;
+			std::cout << "A router is on a wall cell or on a void cell" << std::endl;
 		}
 	}
 
@@ -216,7 +216,7 @@ bool Referee::testValidity() {
 	int budgetUsed = routers.size() * plan.getRouterCost() + cellsConnected.size() * plan.getWireCost();
 	if (plan.getMaxBudget() < budgetUsed) {
 		valid = false;
-		std::cout << "the max budget is exceeded (max budget = " << plan.getMaxBudget() << ", budget used = " << budgetUsed << ")" << std::endl;
+		std::cout << "The max budget is exceeded (max budget = " << plan.getMaxBudget() << ", budget used = " << budgetUsed << ")" << std::endl;
 	}
 
 	return valid;
