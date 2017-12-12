@@ -179,10 +179,20 @@ bool Referee::testValidity() {
 	previousCell = backboneCell;
 
 	//each router has to be connected
-	if (nbCellsConnected < nbRouters) {
-		valid = false;
-		std::cout << "There are less connected cells than routers" << std::endl;
+	for (Coordinate rout : routers) {
+		bool isConnected = false;
+		for (std::vector<Coordinate>::iterator it = cellsConnected.begin(); it != cellsConnected.end(); ++it) { //iterates from the first to the last connected cell
+			if ((rout.x == it->x) && (rout.y == it->y)) { //looks for a neighbor
+				isConnected = true;
+			}
+		}
+
+		if (!isConnected) {
+			valid = false;
+			std::cout << "The router " << rout << " isn't connected" << std::endl;
+		}
 	}
+
 
 	//each cell has to be connected to the backbone or to the previous cell
 	for (Coordinate &co : cellsConnected) {
