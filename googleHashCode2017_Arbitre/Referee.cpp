@@ -62,7 +62,6 @@ Referee::Referee(std::string outputFile, std::string inputFile) :
 
 			//calculate how many cells are covered
 			for (Coordinate &c : routers) {
-				cellsCovered.push_back(c);
 				std::vector<Cell*> covCells = plan.coverableCells(c);
 				for (Cell *cov : covCells) {
 					Coordinate co = cov->getCoordinate();
