@@ -9,11 +9,6 @@
 #include <iterator>
 #include <algorithm>
 
-/**
-* Determines if two cells are respectively neighbors, which means the distance between them equals 1 or less
-* @param outputFile: a result file, corresponding to the specifications format
-* @param inputFile: the input file used to create outputFile
-*/
 
 Referee::Referee(std::string repertoryName,std::string outputFile) :
 	plan(splitOutput(outputFile)),
@@ -251,10 +246,15 @@ int Referee::calculateScore() {
 	return score;
 }
 
-std::string Referee::splitOutput(std::string str) {
-	int beginning = 3;
-	int size = str.length() - 7;
-	std::string nameOfMap = str.substr(beginning, size);
+/**
+* Allows to determine the original input file from the name of the output file
+* @param outputFile: the output file that contains the name of the map (ex : ../inputData/charleston_road.in)
+  @return the name of the original input file
+*/
+std::string Referee::splitOutput(std::string outputFile) {
+	int beginning = 3; //skip "../" at the beginning of the output path
+	int size = outputFile.length() - 7; //skip ".out" at the end of the file and take in account the 3 first characters already passed (3+4=7)
+	std::string nameOfMap = outputFile.substr(beginning, size);
 	std::string inputFile ("../inputData/");
 	inputFile.append(nameOfMap);
 	inputFile.append(".in");

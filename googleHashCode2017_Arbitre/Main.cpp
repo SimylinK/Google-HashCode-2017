@@ -8,7 +8,7 @@
 
 int main() {
 
-	std::string map = "fzf";
+	std::string map = "charleston_road";
 	std::string inputFile = "../inputData/" + map + ".in";
 
 	std::string repertoryName = "test";
