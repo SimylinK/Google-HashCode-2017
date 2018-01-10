@@ -7,6 +7,11 @@
 #include "Referee.h"
 
 int main() {
+	/*
+	Count ct;// use it in the begin
+	ct.runAllExe(".\\runExe");// the path of .exe
+	ct.getAverageRunningTime();// get time
+	*/
 
 	std::string map = "charleston_road";
 	std::string inputFile = "../inputData/" + map + ".in";
