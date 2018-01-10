@@ -10,7 +10,7 @@ class Referee {
 
 public:
 	Referee() {};
-	Referee(std::string outputFile, std::string inputFile);
+	Referee(std::string repertoryName, std::string outputFile);
 	Referee(const Referee&);
 	~Referee() {};
 
@@ -19,6 +19,7 @@ public:
 
 private:
 	bool testValidity();
+	std::string splitOutput(std::string str);
 
 	bool valid = true;
 	int score = 0;
@@ -31,6 +32,9 @@ private:
 	std::vector<Coordinate> cellsConnected;
 	std::vector<Coordinate> routers;
 	Plan plan;
+
+	std::string repertoryName;
+
 };
 
 std::ostream &operator<<(std::ostream &o, Referee &Referee);

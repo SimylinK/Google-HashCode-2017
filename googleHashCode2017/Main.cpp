@@ -6,7 +6,7 @@
 #include "Output.h"
 
 int main() {
-	Plan p("../inputData/test.in");
+	Plan p("../inputData/charleston_road.in");
 
 	std::cout << p;
 
@@ -29,7 +29,7 @@ int main() {
 	}*/
 
 	try {
-		output(p, "../outputFile.out");
+		output(p, "../charleston_road.out");
 	}
 	catch (std::exception e) {
 		std::cout << e.what();

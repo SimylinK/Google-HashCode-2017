@@ -15,9 +15,11 @@
 * @param inputFile: the input file used to create outputFile
 */
 
-Referee::Referee(std::string outputFile, std::string inputFile) :
-	plan(inputFile)
+Referee::Referee(std::string repertoryName,std::string outputFile) :
+	plan(splitOutput(outputFile)),
+	repertoryName(repertoryName)
 {
+
 	std::string line;
 	std::ifstream file(outputFile);
 
@@ -76,6 +78,7 @@ Referee::Referee(std::string outputFile, std::string inputFile) :
 			valid = false;
 		}
 	}
+
 		
 	else {
 		std::cout << "Unable to open output file : " << outputFile << std::endl;
@@ -246,4 +249,15 @@ int Referee::calculateScore() {
 	if (valid) score = 1000 * nbCellsCovered + (budget - (nbCellsConnected * wireCost + nbRouters * routerCost));
 
 	return score;
+}
+
+std::string Referee::splitOutput(std::string str) {
+	int beginning = 3;
+	int size = str.length() - 7;
+	std::string nameOfMap = str.substr(beginning, size);
+	std::string inputFile ("../inputData/");
+	inputFile.append(nameOfMap);
+	inputFile.append(".in");
+
+	return inputFile;
 }

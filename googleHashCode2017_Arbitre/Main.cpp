@@ -8,17 +8,22 @@
 
 int main() {
 
-	std::string map = "charleston_road";
+	std::string map = "fzf";
 	std::string inputFile = "../inputData/" + map + ".in";
-	
 
-	Plan p(inputFile);
+	std::string repertoryName = "test";
 
-	Referee a("../" + map + ".out", inputFile);
+	try {
+		Referee a(repertoryName, "../" + map + ".out");
+		int score = a.calculateScore();
+
+		std::cout << "Score = " << score << std::endl;
+	}
+	catch (std::exception e) {
+		std::cout << "This name of output file isn't valid. \n\nValid names of file are :\n../inputData/charleston_road.in\n../inputData/lets_go_higher.in\n../inputData/opera.in\n../inputData/rue_de_londres.in" << std::endl;
+	}
 
 //	std::cout << a << std::endl;
-
-	std::cout << "Score = " << a.calculateScore() << std::endl;
 
 	return 0;
 }

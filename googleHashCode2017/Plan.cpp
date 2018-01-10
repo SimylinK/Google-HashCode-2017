@@ -45,10 +45,11 @@ Plan::Plan(string inputFile) {
 		}
 
 		file.close();
+
 	} else {
 		cout << "Unable to open input file : " << inputFile << endl;
+		throw std::runtime_error("Bad name of file");
 	}
-
 }
 
 Plan::Plan(const Plan &p) :
