@@ -2,7 +2,6 @@
 #include "utility.h"
 #include <iostream>
 #include <fstream>
-#include <math.h>
 
 using namespace std;
 
@@ -302,7 +301,7 @@ std::ostream &operator<<(std::ostream &os, const Plan &p) {
 * @param b: the router which is the destination
 * @param money: the money used until now, will be updated during this method
 */
-std::vector<Coordinate> Plan::link(const Coordinate &a, const Coordinate &b) {
+void Plan::link(const Coordinate &a, const Coordinate &b) {
 	vector<Coordinate> wiresToAdd;
 
 	if (a != b) {
@@ -354,7 +353,6 @@ std::vector<Coordinate> Plan::link(const Coordinate &a, const Coordinate &b) {
 			this->addWire(wire);
 		}
 	}
-	return wiresToAdd;
 }
 
 /**

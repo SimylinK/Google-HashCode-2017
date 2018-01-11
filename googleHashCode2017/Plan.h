@@ -51,7 +51,7 @@ public:
 	void removeRouters(int nbRouterSector, int nbWires);
 	std::vector<Cell*> reachableCells(const Coordinate &c);
 	std::vector<Cell*> coverableCells(const Coordinate &router);
-	std::vector<Coordinate> link(const Coordinate &a, const Coordinate &b);
+	void link(const Coordinate &a, const Coordinate &b);
 	double percentageCovered();
 
 private :
