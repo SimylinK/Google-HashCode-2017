@@ -74,6 +74,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -90,6 +91,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -116,7 +118,6 @@
     <ClInclude Include="..\googleHashCode2017\Solver.h" />
     <ClInclude Include="..\googleHashCode2017\utility.h" />
     <ClInclude Include="Count.h" />
-    <ClInclude Include="FileHandling.hpp" />
     <ClInclude Include="Referee.h" />
   </ItemGroup>
   <ItemGroup>
@@ -126,9 +127,11 @@
     <ClCompile Include="..\googleHashCode2017\Solver.cpp" />
     <ClCompile Include="..\googleHashCode2017\utility.cpp" />
     <ClCompile Include="Count.cpp" />
-    <ClCompile Include="FileHandling.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Referee.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram.cd" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

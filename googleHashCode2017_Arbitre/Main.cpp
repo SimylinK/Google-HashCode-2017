@@ -5,26 +5,16 @@
 #include "../googleHashCode2017/Solver.h"
 #include "../googleHashCode2017/Output.h"
 #include "Referee.h"
-
 #include "Count.h"
 
-int main(int argc, char* argv[]) {
+int main() {
 
-	std::cout << argv[0] << std::endl;
+	std::cout << "-----------time------------" << std::endl;
 	Count ct;// use it in the begin
-			 //std::string buffer = "./runExe";
-	//ct.runAllExe(buffer);// the path of .exe
-	//getAverageRunningTime();// get time
-	std::cout << "coucou" << std::endl;
-
-	std::string e = "C:/Users/Mathilde/Desktop/Google_Hashcode_2017/googleHashCode2017_Arbitre/runExe";
-	if (system(e.data()) != 0) {
-		std::cout << "can not run the *.exe" << std::endl;
-		exit(0);
-	}
-	std::cout << "coucou" << std::endl;
-	/*
-	std::cout << "coucou = " << std::endl;
+	std::string buffer = "..\\runExe";
+	ct.runAllExe(buffer);// the path of .exe
+	ct.getAverageRunningTime();// get time
+	std::cout << "-----------score------------" << std::endl;
 
 	std::string map = "charleston_road";
 	std::string inputFile = "../inputData/" + map + ".in";
@@ -42,11 +32,8 @@ int main(int argc, char* argv[]) {
 		std::cout << "This name of output file isn't valid. \n\nValid names of file are :\n../inputData/charleston_road.in\n../inputData/lets_go_higher.in\n../inputData/opera.in\n../inputData/rue_de_londres.in" << std::endl;
 	}
 
-//	std::cout << a << std::endl;
-
-
-*/
-	system("PAUSE");
+	std::cout << "haha hehe heihei";
+	std::cin.get();//pour un pose
 	
 	return 0;
 }

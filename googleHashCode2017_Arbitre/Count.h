@@ -7,7 +7,6 @@
 #include<shellapi.h>
 #include<string>
 #include "io.h"
-#include "FileHandling.hpp"
 class Count {
 public:
 	Count(int w = 0);//choose to use which way 0 or 1
