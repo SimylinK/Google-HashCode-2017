@@ -28,7 +28,7 @@ public:
 	inline void setEnvironment(const char &c) { environment = c; }
 	inline void setCoverableCells(std::vector<Cell*> c) { coverableCells = c; }
 	std::vector<Cell*> getCoverableCells();
-	int getNumberOfCoverableCells();
+	int getNumberOfUncoveredCells();
 
 private:
 	Coordinate coordinate;

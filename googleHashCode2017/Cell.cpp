@@ -37,14 +37,9 @@ Cell &Cell::operator=(Cell &&c) {
 Cell::~Cell() {
 }
 
-int Cell::getNumberOfCoverableCells() {
-	int coverable = 0;
-	for (auto& elem : coverableCells){
-		if(!elem->isCovered()){
-			coverable++;
-		}
-	}
-	return coverable;
+int Cell::getNumberOfUncoveredCells() {
+	auto uncoveredCells = getCoverableCells();
+	return uncoveredCells.size();
 }
 
 std::vector<Cell *> Cell::getCoverableCells() {
