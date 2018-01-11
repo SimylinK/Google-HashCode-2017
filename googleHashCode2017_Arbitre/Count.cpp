@@ -1,4 +1,5 @@
 #include"Count.h"
+#include "FileHandling.hpp"
 
 /**
 * choose use which way 0 or 1
@@ -67,33 +68,23 @@ double Count::getAverageRunningTime() {
 * @return null
 */
 void Count::getFiles(std::string path, std::vector<std::string>& files)
-{ 
-	long   hFile = 0;//File handle
-	struct _finddata_t fileInfo;//information of file 
-	std::string p;
-	if ((hFile = _findfirst(p.assign(path).append("/*").c_str(), &fileInfo)) != -1)
+{
+	std::string fileName;
+	FileHandling dirList(path);
+	std::string fileInDir;
+	int i = 0;
+	int Limit = 0;
+	while ((Limit == 0 || i < Limit) && dirList.GetNextFile(fileName))
 	{
-		do
-		{
-			std::cout << p.assign(path).append("/").append(fileInfo.name) << std::endl;
-			// If the directory, iteration
-			// If not, add to the list
-			if ((fileInfo.attrib &  _A_SUBDIR))
-			{
-				if (strcmp(fileInfo.name, ".") != 0 && strcmp(fileInfo.name, "..") != 0)
-					getFiles(p.assign(path).append("/").append(fileInfo.name), files);
-			}
-			else
-			{
-				files.push_back(p.assign(path).append("/").append(fileInfo.name));
-			}
-		} while (_findnext(hFile, &fileInfo) == 0);
-		_findclose(hFile);
-	}
-	else
-	{
-		std::cout << "input the wrong path" <<std::endl;
-		exit(0);
+		
+		std::string file(path);
+		file += fileName;
+		file.erase(0, 2);
+		fileInDir = path;
+		fileInDir.append("/");
+		fileInDir.append(fileName);
+		std::cout << fileInDir << std::endl;
+		files.push_back(fileInDir);
 	}
 }
 
@@ -113,12 +104,15 @@ void Count::runAllExe(const std::string& path){
 	}
 	std::cout << std::endl;
 	std::cout <<"Timer starts:"<< std::endl;
+
 	for (std::string e : fileNames) {
 		startTimer();
 		if (system(e.data()) != 0) {
 			std::cout << "can not run the *.exe" << std::endl;
 			exit(0);
 		}
-		stopTimer();
+	stopTimer();
 	}
+
+
 }

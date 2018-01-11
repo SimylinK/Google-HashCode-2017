@@ -8,10 +8,22 @@
 
 #include "Count.h"
 
-int main() {
+int main(int argc, char* argv[]) {
 
+	std::cout << argv[0] << std::endl;
+	Count ct;// use it in the begin
+			 //std::string buffer = "./runExe";
+	//ct.runAllExe(buffer);// the path of .exe
+	//getAverageRunningTime();// get time
+	std::cout << "coucou" << std::endl;
 
-	
+	std::string e = "C:/Users/Mathilde/Desktop/Google_Hashcode_2017/googleHashCode2017_Arbitre/runExe";
+	if (system(e.data()) != 0) {
+		std::cout << "can not run the *.exe" << std::endl;
+		exit(0);
+	}
+	std::cout << "coucou" << std::endl;
+	/*
 	std::cout << "coucou = " << std::endl;
 
 	std::string map = "charleston_road";
@@ -33,6 +45,7 @@ int main() {
 //	std::cout << a << std::endl;
 
 
+*/
 	system("PAUSE");
 	
 	return 0;
