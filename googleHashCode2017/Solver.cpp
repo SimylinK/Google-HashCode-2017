@@ -14,12 +14,11 @@ void solveProblem(Plan &p) {
 	std::cout << "--------------------Positioning routers--------------------" << std::endl;
 	std::vector<Coordinate> firstRouters = placeRoutersIterative(p);
 
-	std::cout << "--------------------Filling blanks--------------------" << std::endl;
-	fillBlanks(p);
-
-	std::cout << "--------------------Positioning wires--------------------" << std::endl;
+	std::cout << "--------------------Linking first routers--------------------" << std::endl;
 	linkRouters(p);
 
+	std::cout << "--------------------Filling blanks--------------------" << std::endl;
+	fillBlanks(p);
 }
 
 /**
@@ -60,21 +59,15 @@ void fillBlanks(Plan &p){
 			for (int j = 0; j < p.getColumns() && p.getSpentMoney() < maxBuget - routerCost; j++) {
 				if (p(i, j).getNumberOfCoverableCells() > reachableCells-step && p.getSpentMoney() < maxBuget - routerCost) {
 					Coordinate c(i, j);
-//					auto routersAndBackbone = p.getRouters();
-//					routersAndBackbone.push_back(p.getBackbone());
-//					Coordinate bestRouter = argDistMin(c, routersAndBackbone);
-//					Coordinate placeToLink = followWire(p, bestRouter, c);
-//					p.link(placeToLink, c);
+					auto routersAndBackbone = p.getRouters();
+					routersAndBackbone.push_back(p.getBackbone());
+					Coordinate bestRouter = argDistMin(c, routersAndBackbone);
+					Coordinate placeToLink = followWire(p, bestRouter, c);
+					p.link(placeToLink, c);
 					p.addRouter(c);
 					nbRouters++;
 				}
 			}
-		}
-		if(step == 1){
-			std::cout << "Positionned " << nbRouters << " routers covering " << reachableCells << " cells" << std::endl;
-		} else {
-			std::cout << "Positionned " << nbRouters << " routers covering between [" << reachableCells << ", " << reachableCells-step+1  << "] cells" << std::endl;
-
 		}
 	}
 }
@@ -220,7 +213,7 @@ void linkRouters(Plan &p) {
 	int routersRemoved = 0;
 	while (linkStratTwo(p)) { // while we use too much money
 		std::cout << "Routers removed " << ++routersRemoved << std::endl;
-		p.removeRouters(1, p.getWires().size()-1); // remove the last router since it's the one which covers the less space, and remove all the wires
+		p.removeRouters(1, p.getWires().size()-1); // remove the last router and remove all the wires
 	}
 }
 
