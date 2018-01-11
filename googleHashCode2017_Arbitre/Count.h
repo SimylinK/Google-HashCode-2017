@@ -1,9 +1,5 @@
 #pragma once
-#ifdef WIN32
 #include <windows.h>
-#else 
-#include <unistd.h>
-#endif 
 #include<time.h>
 #include<iostream>
 #include<vector>

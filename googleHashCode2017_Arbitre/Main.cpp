@@ -6,12 +6,13 @@
 #include "../googleHashCode2017/Output.h"
 #include "Referee.h"
 
+#include "Count.h"
+
 int main() {
-	/*
-	Count ct;// use it in the begin
-	ct.runAllExe(".\\runExe");// the path of .exe
-	ct.getAverageRunningTime();// get time
-	*/
+
+
+	
+	std::cout << "coucou = " << std::endl;
 
 	std::string map = "charleston_road";
 	std::string inputFile = "../inputData/" + map + ".in";
@@ -23,6 +24,7 @@ int main() {
 		int score = a.calculateScore();
 
 		std::cout << "Score = " << score << std::endl;
+
 	}
 	catch (std::exception e) {
 		std::cout << "This name of output file isn't valid. \n\nValid names of file are :\n../inputData/charleston_road.in\n../inputData/lets_go_higher.in\n../inputData/opera.in\n../inputData/rue_de_londres.in" << std::endl;
@@ -30,5 +32,8 @@ int main() {
 
 //	std::cout << a << std::endl;
 
+
+	system("PAUSE");
+	
 	return 0;
 }

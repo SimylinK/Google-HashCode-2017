@@ -71,20 +71,21 @@ void Count::getFiles(std::string path, std::vector<std::string>& files)
 	long   hFile = 0;//File handle
 	struct _finddata_t fileInfo;//information of file 
 	std::string p;
-	if ((hFile = _findfirst(p.assign(path).append("\\*").c_str(), &fileInfo)) != -1)
+	if ((hFile = _findfirst(p.assign(path).append("/*").c_str(), &fileInfo)) != -1)
 	{
 		do
 		{
+			std::cout << p.assign(path).append("/").append(fileInfo.name) << std::endl;
 			// If the directory, iteration
 			// If not, add to the list
 			if ((fileInfo.attrib &  _A_SUBDIR))
 			{
 				if (strcmp(fileInfo.name, ".") != 0 && strcmp(fileInfo.name, "..") != 0)
-					getFiles(p.assign(path).append("\\").append(fileInfo.name), files);
+					getFiles(p.assign(path).append("/").append(fileInfo.name), files);
 			}
 			else
 			{
-				files.push_back(p.assign(path).append("\\").append(fileInfo.name));
+				files.push_back(p.assign(path).append("/").append(fileInfo.name));
 			}
 		} while (_findnext(hFile, &fileInfo) == 0);
 		_findclose(hFile);
