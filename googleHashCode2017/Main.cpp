@@ -8,7 +8,6 @@
 int main(int argc, char *argv[]) {
 
     if(argc == 2) {
-        std::cout << argv[1] << std::endl;
         Plan p(argv[1]);
 
         std::cout << "MaxBudget : " << p.getMaxBudget() << std::endl;
@@ -17,12 +16,7 @@ int main(int argc, char *argv[]) {
         solveProblem(p);
 
         std::cout << "money used : " << p.getSpentMoney() << std::endl;
-
-        // To fill an output file (in notepadd++ you can dezoom to analyse big maps)
-        std::ofstream file("../output/test.out", std::ios::out);
-        if (file) {
-            file << p << std::endl;
-        }
+        std::cout << "percentage of cells covered : " << p.percentageCovered() << std::endl;
 
         try {
             output(p, "../outputFile.out");
