@@ -1,5 +1,6 @@
 #include <cmath>
 #include "Solver.h"
+#include "Coordinate.h"
 #include <map>
 #include <iostream>
 
@@ -11,7 +12,7 @@
 */
 void solveProblem(Plan &p) {
 
-	std::cout << "--------------------Positioning routers--------------------" << std::endl;
+	std::cout << "--------------------Positioning first routers--------------------" << std::endl;
 	std::vector<Coordinate> firstRouters = placeRoutersIterative(p);
 
 	std::cout << "--------------------Linking first routers--------------------" << std::endl;
@@ -33,7 +34,7 @@ std::vector<Coordinate> placeRoutersIterative(Plan &p) {
 
 	for (int i = 0; i < p.getRows() && p.getSpentMoney() < p.getMaxBudget() - routerCost; i++) {
 		for (int j = 0; j < p.getColumns() && p.getSpentMoney() < p.getMaxBudget() - routerCost; j++) {
-			if (!p(i,j).isCovered() && p(i, j).getNumberOfCoverableCells() >= maxReachableCells) { // we can't cover the maxReachableCells if we're covered
+			if (!p(i,j).isCovered() && p(i, j).getNumberOfUncoveredCells() >= maxReachableCells) { // we can't cover the maxReachableCells if we're covered
 				Coordinate c(i, j);
 				p.addRouter(c);
 				nbRouters++;
@@ -57,7 +58,7 @@ void fillBlanks(Plan &p){
 		}
 		for (int i = 0; i < p.getRows() && p.getSpentMoney() < maxBuget - routerCost; i++) {
 			for (int j = 0; j < p.getColumns() && p.getSpentMoney() < maxBuget - routerCost; j++) {
-				if (p(i, j).getNumberOfCoverableCells() > reachableCells-step && p.getSpentMoney() < maxBuget - routerCost) {
+				if (p(i, j).getNumberOfUncoveredCells() > reachableCells-step && p.getSpentMoney() < maxBuget - routerCost) {
 					Coordinate c(i, j);
 					auto routersAndBackbone = p.getRouters();
 					routersAndBackbone.push_back(p.getBackbone());
@@ -70,25 +71,6 @@ void fillBlanks(Plan &p){
 			}
 		}
 	}
-}
-
-/**
-* Find the barycentre of a list of Coordinate
-* @param listCoord: the list of Coordinate from which to find the barycentre
-* @return the barycentre of the list
-*/
-Coordinate computeBarycentre(const std::vector<Coordinate> &listCoord) {
-	int baryX = 0;
-	int baryY = 0;
-
-	for (Coordinate coord : listCoord) {
-		baryX += coord.x;
-		baryY += coord.y;
-	}
-	baryX /= static_cast<int>(listCoord.size());
-	baryY /= static_cast<int>(listCoord.size());
-
-	return Coordinate(baryX, baryY);
 }
 
 /**
@@ -187,24 +169,6 @@ Coordinate followWire(Plan &plan, const Coordinate &startRouter, const Coordinat
 	return closestPoint;
 }
 
-void eraseFromVector(std::vector<Coordinate> &vector, const Coordinate &coord) {
-	auto it = std::find(vector.begin(), vector.end(), coord);
-	if (it < vector.end()) {
-		vector.erase(it);
-	}
-
-}
-
-void eraseFromVector(std::vector<Coordinate> &vector, std::vector<Coordinate> &vectorToRemove) {
-
-	for (auto it = vectorToRemove.begin(); it != vectorToRemove.end(); it++) {
-		//std::cout << "Trying to remove " << *it << " from : " << std::endl << vector;
-		eraseFromVector(vector, *it);
-
-	}
-
-}
-
 /**
  *
  * @param p : the plan to work on
@@ -230,7 +194,7 @@ bool linkStratTwo(Plan &p) {
 	p.link(p.getBackbone(), minToBackbone);
 	wiredGroup.push_back(p.getBackbone());
 	wiredGroup.push_back(minToBackbone);
-	eraseFromVector(routers, minToBackbone); // no need to link this router anymore
+	routers.erase(std::remove(routers.begin(), routers.end(), minToBackbone), routers.end()); // no need to link this router anymore
 
 	std::pair<Coordinate, Coordinate> bestPair;
 	Coordinate placeToLink;
@@ -239,7 +203,7 @@ bool linkStratTwo(Plan &p) {
 		placeToLink = followWire(p, bestPair.first, bestPair.second);
 		p.link(placeToLink, bestPair.second);
 		wiredGroup.push_back(bestPair.second);
-		eraseFromVector(routers, bestPair.second);
+		routers.erase(std::remove(routers.begin(), routers.end(), bestPair.second), routers.end()); // remove router from routers to link
 	}
 	bool spentMore = p.getSpentMoney() > p.getMaxBudget() || routers.size() > 0; // if we spent too much money of if there is a router still not linked
 	return spentMore;

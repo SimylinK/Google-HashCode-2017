@@ -8,9 +8,6 @@ std::vector<Coordinate> placeRoutersIterative(Plan &p);
 void fillBlanks(Plan &p);
 Coordinate argDistMin(const Coordinate &point, const std::vector<Coordinate> &listCoord);
 Coordinate followWire(Plan &plan, const Coordinate &startRouter, const Coordinate &targetRouter);
-void eraseFromVector(std::vector<Coordinate> &vector, const Coordinate &coord);
-void eraseFromVector(std::vector<Coordinate> &vector, std::vector<Coordinate> &vectorToRemove);
-
 
 void linkRouters(Plan &p);
 bool linkStratTwo(Plan &p);
