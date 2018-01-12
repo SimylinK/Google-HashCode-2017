@@ -8,18 +8,19 @@
 #include "Count.h"
 
 int main(int argc, char* argv[]) {
+	std::cout << argv[1] << std::endl;
+	std::cout << argv[2] << std::endl;
 
 	if (argc == 3) {
 
 		std::cout << "-----------time------------" << std::endl;
 		Count ct;// use it in the begin
 		std::string buffer = argv[1];
-		//ct.runAllExe(buffer);// the path of .exe
-		//ct.getAverageRunningTime();// get time
+	//	ct.runAllExe(buffer);// the path of .exe
+	//	ct.getAverageRunningTime();// get time
 		std::cout << "-----------score------------" << std::endl;
 
 		std::string outputFile = argv[2];
-
 
 		try {
 			Referee a(buffer, outputFile);
@@ -35,5 +36,7 @@ int main(int argc, char* argv[]) {
 	else {
 		std::cout << "Please provide as arguments the directory of executables and the output file in this order" << std::endl;
 	}
+
+	system("PAUSE");
 	return 0;
 }

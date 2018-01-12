@@ -18,7 +18,7 @@ int main(int argc, char *argv[]) {
 
         std::cout << "money used : " << p.getSpentMoney() << std::endl;
         std::cout << "percentage of cells covered : " << p.percentageCovered() << std::endl;
-
+			
         try {
 			std::string input(argv[1]);
 			std::string outputFile = input.substr(0, input.size() - 2);
