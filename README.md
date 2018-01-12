@@ -23,3 +23,13 @@ MONVOISIN Mathilde
 PAGANO Lucas
 
 MARAVAL Nathan
+
+Utilisation
+===========
+Se placer dans le dossier bin, puis :
+
+Pour la résolution du problème : ./googleHashCode2017.exe <cheminFichierInput>
+Exemple : ./googleHashCode2017.exe "../inputAndOutput/charleston_road.in"
+
+Pour l'arbitre et le calcul de performances : ./googleHashCode2017_Arbitre.exe <cheminDossierExecutables> <cheminFichierOutput>
+Exemple : ./googleHashCode2017_Arbitre.exe "../runExe" "../inputAndOutput/charleston_road.out"
