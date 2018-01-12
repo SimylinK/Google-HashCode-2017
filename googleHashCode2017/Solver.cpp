@@ -1,116 +1,76 @@
 #include <cmath>
 #include "Solver.h"
+#include "Coordinate.h"
+#include <map>
 #include <iostream>
+
 /**
 * Position and link a network of routers on a plan to maximise the number of covered cells
 * @param p: the plan to position the routers on
 * @param nbRouterSector: the maximum number of routers in a sector
 * @return the money spent
 */
-int solveProblem(Plan &p, int nbRouterSector){
+void solveProblem(Plan &p) {
 
-	int spentMoney = 0;
-	int lastNbWireSector; //The number of wires that was required to link a sector
-	int lastSpentMoney;
-	int nbFirstWires;
+	std::cout << "--------------------Positioning first routers--------------------" << std::endl;
+	std::vector<Coordinate> firstRouters = placeRoutersIterative(p);
 
+	std::cout << "--------------------Linking first routers--------------------" << std::endl;
+	linkRouters(p);
 
-	std::vector<Coordinate> sectorRouters;
-	std::vector<Coordinate> listBarycentres;
-	Coordinate currentBary;
-	Coordinate closestBackboneRouter;
-
-	do{
-		std::cout << nbRouterSector << std::endl;
-		std::cout << "Positioning routers" << std::endl;
-		//Position routers
-		sectorRouters.clear();
-		placeRoutersIterative(p, sectorRouters, nbRouterSector,spentMoney);
-		if (sectorRouters.size()!=0){
-
-			std::cout << "Positioning wires" << std::endl;
-			//Position wires
-
-			lastSpentMoney = spentMoney;
-
-			std::vector<Coordinate> listConnectedRouters;
-
-			currentBary = computeBarycentre(sectorRouters);
-			closestBackboneRouter = argDistMin(p.getBackbone(), sectorRouters);
-			listBarycentres.push_back(currentBary);
-
-			if (distance(closestBackboneRouter, p.getBackbone()) < distance(currentBary, p.getBackbone())){
-				p.link(p.getBackbone(), closestBackboneRouter, spentMoney);
-				recursiveLink(p, closestBackboneRouter, sectorRouters, spentMoney, currentBary, listConnectedRouters,true);
-			}
-			else {
-				p.link(p.getBackbone(), currentBary, spentMoney);
-			}
-
-
-			sectorLink(p, listBarycentres, sectorRouters, spentMoney, listConnectedRouters,false);
-			lastNbWireSector = (spentMoney - lastSpentMoney) / p.getWireCost();
-
-			if (spentMoney > p.getMaxBudget()) {
-						
-				p.removeRouters(nbRouterSector, lastNbWireSector);
-				spentMoney -= nbRouterSector*p.getRouterCost() + (lastNbWireSector)*p.getWireCost();
-				nbRouterSector--;
-			}
-		}
-	//If there's not enough money to place one router
-	//or if there's no place any more to position a router, then the algorithm stops.
-	}while (nbRouterSector > 0 && sectorRouters.size() > 0);
-
-	return spentMoney;
+	std::cout << "--------------------Filling blanks--------------------" << std::endl;
+	fillBlanks(p);
 }
 
 /**
-* Position a sector of routers
+* Position all possible routers with maximum coverage area
 * @param p: the plan to position the routers on
-* @param n: the maximum number of routers to position
+* @param spentMoney : the money used until now, will be updated during this method
 */
-void placeRoutersIterative(Plan &p, std::vector<Coordinate>& sectorRouters, int nbRouterSector, int& spentMoney) {
-	int maxReachableCells = (p.getRouterRange()*2 + 1)*(p.getRouterRange()*2 + 1);
-	int numberPlacedRouters = 0;
+std::vector<Coordinate> placeRoutersIterative(Plan &p) {
+	int maxReachableCells = (p.getRouterRange() * 2 + 1) * (p.getRouterRange() * 2 + 1);
 	int routerCost = p.getRouterCost();
-	int j;
-	for (int i = 0; i < p.getRows() && numberPlacedRouters < nbRouterSector && spentMoney < p.getMaxBudget(); i++) {
-		j = 0;
-		for (int j = 0; j < p.getColumns() && numberPlacedRouters < nbRouterSector; j++) {
-			if (p.coverableCells(Coordinate(i, j)).size() == maxReachableCells) {
-				Coordinate c(i,j);
+	int nbRouters = 0;
+
+	for (int i = 0; i < p.getRows() && p.getSpentMoney() < p.getMaxBudget() - routerCost; i++) {
+		for (int j = 0; j < p.getColumns() && p.getSpentMoney() < p.getMaxBudget() - routerCost; j++) {
+			if (!p(i,j).isCovered() && p(i, j).getNumberOfUncoveredCells() >= maxReachableCells) { // we can't cover the maxReachableCells if we're covered
+				Coordinate c(i, j);
 				p.addRouter(c);
-				sectorRouters.push_back(c);
-				numberPlacedRouters++;
-				spentMoney += routerCost;
-			}			
+				nbRouters++;
+			}
 		}
 	}
-
-	if (sectorRouters.size() < nbRouterSector) {
-		std::cout << "Solver could only postion " << sectorRouters.size() << " on " << nbRouterSector << " routers asked." << std::endl;
-	}
-
+	std::cout << "Positionned " << nbRouters << " routers that cover " << maxReachableCells << " cells" << std::endl;
+	return p.getRouters(); // we haven't added any other router
 }
 
-/**
-* Find the barycentre of a list of Coordinate
-* @param listCoord: the list of Coordinate from which to find the barycentre
-* @return the barycentre of the list
-*/
-Coordinate computeBarycentre(const std::vector<Coordinate> &listCoord) {
-	int baryX = 0;
-	int baryY = 0;
+void fillBlanks(Plan &p){
+	int step = 1; // set this to 10 if you're debugging and want the function to go 10 times faster
+	int maxBuget = p.getMaxBudget();
+	int routerCost = p.getRouterCost();
+	int maxReachableCells = (p.getRouterRange() * 2 + 1) * (p.getRouterRange() * 2 + 1);
 
-	for (Coordinate coord : listCoord) {
-		baryX += coord.x;
-		baryY += coord.y;
+	for (int reachableCells = maxReachableCells -1; reachableCells>0; reachableCells-=step) {
+		int nbRouters = 0;
+		if (reachableCells-step <= 0){
+			reachableCells = step;
+		}
+		for (int i = 0; i < p.getRows() && p.getSpentMoney() < maxBuget - routerCost; i++) {
+			for (int j = 0; j < p.getColumns() && p.getSpentMoney() < maxBuget - routerCost; j++) {
+				if (p(i, j).getNumberOfUncoveredCells() > reachableCells-step && p.getSpentMoney() < maxBuget - routerCost) {
+					Coordinate c(i, j);
+					auto routersAndBackbone = p.getRouters();
+					routersAndBackbone.push_back(p.getBackbone());
+					Coordinate bestRouter = argDistMin(c, routersAndBackbone);
+					Coordinate placeToLink = followWire(p, bestRouter, c);
+					p.link(placeToLink, c);
+					p.addRouter(c);
+					nbRouters++;
+				}
+			}
+		}
 	}
-	baryX /= static_cast<int>(listCoord.size());
-	baryY /= static_cast<int>(listCoord.size());
-
-	return  Coordinate(baryX, baryY);
 }
 
 /**
@@ -125,8 +85,7 @@ Coordinate argDistMin(const Coordinate &point, const std::vector<Coordinate> &li
 	int min = distance(point, listCoord[0]);
 	Coordinate argMin = listCoord[0];
 
-	for (int index = 0; index < listCoord.size(); index++)
-	{
+	for (unsigned int index = 0; index < listCoord.size(); index++) {
 		int dist = distance(point, listCoord[index]);
 		if (dist < min) {
 			min = dist;
@@ -134,78 +93,6 @@ Coordinate argDistMin(const Coordinate &point, const std::vector<Coordinate> &li
 		}
 	}
 	return argMin;
-}
-
-/**
-* Connect a list of routers to one of the barycentres
-* @param plan: the plan to work with
-* @param listBarycentres: the barycentres where we connect the routers
-* @param initialListRouters: list of the rooters to connect to the network
-* @param money: the money used until now, will be upadta during this method
-*/
-
-void sectorLink(Plan &plan, const std::vector<Coordinate> &listBarycentres, std::vector<Coordinate> &initialListRouters,
-														int &money, std::vector<Coordinate> & listConnectedRouters, 
-														bool reversedMode) {
-
-	Coordinate barycentre = computeBarycentre(initialListRouters);
-	Coordinate closestBarycentre = argDistMin(barycentre, listBarycentres);
-	plan.link(closestBarycentre, barycentre, money);
-
-	std::vector<Coordinate> routersToConnect = initialListRouters;
-
-	while (routersToConnect.size() > 0) {
-
-		recursiveLink(plan, routersToConnect[0], initialListRouters, money, barycentre, listConnectedRouters,reversedMode);
-
-		for (Coordinate router : listConnectedRouters)
-		{
-			eraseFromVector(routersToConnect, router);
-		}
-		std::vector<Coordinate> listConnectedRouters;
-	}
-
-}
-
-/**
-* Connect a router to the network
-* @param router: the router to be connected
-* @param listRouters: list of the routers to work with, the method remove the rooter used from this list
-* @param money: the money used until now, will be upadta during this method
-* @param barycentre: the barycentre of listRouters
-* @param listConnectedRouters: an empty list, this method will add all the routers connected during this method
-*/
-void recursiveLink(Plan &plan, const Coordinate &router, const std::vector<Coordinate> &listRouters, int &money, 
-									const Coordinate &barycentre, std::vector<Coordinate> &listConnectedRouters, bool reversedMode = false) {
-
-	listConnectedRouters.push_back(router);
-	std::vector<Coordinate> listCoordinatesForLink = listRouters;
-
-	// Remove the router from  listCoordinatesForLink
-	eraseFromVector(listCoordinatesForLink, router);
-	//eraseFromVector(listCoordinatesForLink, listConnectedRouters);
-
-	listCoordinatesForLink.push_back(barycentre);
-
-	// Find closest point to link
-	Coordinate closestLinkablePoint = argDistMin(router, listCoordinatesForLink);
-
-	if (reversedMode == true) {
-		closestLinkablePoint = followWire(plan, closestLinkablePoint, router);
-		plan.link(router, closestLinkablePoint,money);
-	}
-
-	if ((!plan.isWired(closestLinkablePoint) || reversedMode == true) && router != barycentre) {
-		recursiveLink(plan, closestLinkablePoint, listCoordinatesForLink, money, barycentre, listConnectedRouters, reversedMode);
-	}
-
-
-	if (reversedMode == false) {
-
-		closestLinkablePoint = followWire(plan, closestLinkablePoint, router);
-		plan.link(closestLinkablePoint, router, money);
-	}
-
 }
 
 /**
@@ -232,50 +119,48 @@ Coordinate followWire(Plan &plan, const Coordinate &startRouter, const Coordinat
 				if (closestPoint.y > targetRouter.y) {
 					betterCoord2 = Coordinate(closestPoint.x - 1, closestPoint.y - 1);
 					betterCoord3 = Coordinate(closestPoint.x, closestPoint.y - 1);
-				}
-				else if (closestPoint.y < targetRouter.y) {
+				} else if (closestPoint.y < targetRouter.y) {
 					betterCoord2 = Coordinate(closestPoint.x - 1, closestPoint.y + 1);
 					betterCoord3 = Coordinate(closestPoint.x, closestPoint.y + 1);
-				}
-				else if (closestPoint.y == targetRouter.y) {
+				} else if (closestPoint.y == targetRouter.y) {
 					betterCoord2 = Coordinate(closestPoint.x - 1, closestPoint.y + 1);
 					betterCoord3 = Coordinate(closestPoint.x - 1, closestPoint.y - 1);
 				}
-			}
-			else if (closestPoint.x < targetRouter.x) {
+			} else if (closestPoint.x < targetRouter.x) {
 				betterCoord1 = Coordinate(closestPoint.x + 1, closestPoint.y);
 				if (closestPoint.y > targetRouter.y) {
 					betterCoord2 = Coordinate(closestPoint.x + 1, closestPoint.y - 1);
 					betterCoord3 = Coordinate(closestPoint.x, closestPoint.y - 1);
-				}
-				else if (closestPoint.y < targetRouter.y) {
+				} else if (closestPoint.y < targetRouter.y) {
 					betterCoord2 = Coordinate(closestPoint.x + 1, closestPoint.y + 1);
 					betterCoord3 = Coordinate(closestPoint.x, closestPoint.y + 1);
-				}
-				else if (closestPoint.y == targetRouter.y) {
+				} else if (closestPoint.y == targetRouter.y) {
 					betterCoord2 = Coordinate(closestPoint.x + 1, closestPoint.y + 1);
 					betterCoord3 = Coordinate(closestPoint.x + 1, closestPoint.y - 1);
 				}
-			}
-			else if (closestPoint.x == targetRouter.x) {
+			} else if (closestPoint.x == targetRouter.x) {
 				if (closestPoint.y > targetRouter.y) {
 					betterCoord1 = Coordinate(closestPoint.x + 1, closestPoint.y - 1);
 					betterCoord2 = Coordinate(closestPoint.x, closestPoint.y - 1);
 					betterCoord3 = Coordinate(closestPoint.x - 1, closestPoint.y - 1);
-				}
-				else if (closestPoint.y < targetRouter.y) {
+				} else if (closestPoint.y < targetRouter.y) {
 					betterCoord1 = Coordinate(closestPoint.x + 1, closestPoint.y + 1);
 					betterCoord2 = Coordinate(closestPoint.x, closestPoint.y + 1);
 					betterCoord3 = Coordinate(closestPoint.x - 1, closestPoint.y + 1);
-				}
-				else {
+				} else {
 					canGetCloser = false;
 				}
 			}
 			// Check if there is a wire at one of the 3 coordinates
-			if (plan.isWired(betterCoord1) && distance(betterCoord1, targetRouter) < distance(betterCoord1, closestPoint)) closestPoint = betterCoord1;
-			else if (plan.isWired(betterCoord2) && distance(betterCoord1, targetRouter) < distance(betterCoord1, closestPoint)) closestPoint = betterCoord2;
-			else if (plan.isWired(betterCoord3) && distance(betterCoord1, targetRouter) < distance(betterCoord1, closestPoint)) closestPoint = betterCoord3;
+			if (plan.isWired(betterCoord1) &&
+				distance(betterCoord1, targetRouter) < distance(betterCoord1, closestPoint))
+				closestPoint = betterCoord1;
+			else if (plan.isWired(betterCoord2) &&
+					 distance(betterCoord1, targetRouter) < distance(betterCoord1, closestPoint))
+				closestPoint = betterCoord2;
+			else if (plan.isWired(betterCoord3) &&
+					 distance(betterCoord1, targetRouter) < distance(betterCoord1, closestPoint))
+				closestPoint = betterCoord3;
 			else canGetCloser = false;
 
 		} while (canGetCloser);
@@ -284,31 +169,66 @@ Coordinate followWire(Plan &plan, const Coordinate &startRouter, const Coordinat
 	return closestPoint;
 }
 
-void eraseFromVector(std::vector<Coordinate> &vector, const Coordinate &coord) {
-
-	std::vector<Coordinate>::iterator it;
-	
-	it = std::find(vector.begin(), vector.end(), coord);
-	if (it < vector.end()) {
-		vector.erase(it);
+/**
+ *
+ * @param p : the plan to work on
+ */
+void linkRouters(Plan &p) {
+	int routersRemoved = 0;
+	while (linkStratTwo(p)) { // while we use too much money
+		std::cout << "Routers removed " << ++routersRemoved << std::endl;
+		p.removeRouters(1, p.getWires().size()-1); // remove the last router and remove all the wires
 	}
-
 }
 
-void eraseFromVector(std::vector<Coordinate> &vector, std::vector<Coordinate> & vectorToRemove) {
+/**
+ *
+ * @param p : the plan to work on
+ * @return a boolean telling us if we spent too much money or not
+ */
+bool linkStratTwo(Plan &p) {
+	auto routers = p.getRouters();
+	int maxBuget =  p.getMaxBudget();
+	std::vector<Coordinate> wiredGroup;
+	Coordinate minToBackbone = argDistMin(p.getBackbone(), routers); // get the router closer to the backbone, then link it
+	p.link(p.getBackbone(), minToBackbone);
+	wiredGroup.push_back(p.getBackbone());
+	wiredGroup.push_back(minToBackbone);
+	routers.erase(std::remove(routers.begin(), routers.end(), minToBackbone), routers.end()); // no need to link this router anymore
 
-	for (auto it = vectorToRemove.begin(); it != vectorToRemove.end(); it++) {
-		//std::cout << "Trying to remove " << *it << " from : " << std::endl << vector;
-		eraseFromVector(vector, *it);
-
+	std::pair<Coordinate, Coordinate> bestPair;
+	Coordinate placeToLink;
+	while(routers.size() > 0 && p.getSpentMoney() < maxBuget){
+		bestPair = minTwoGroups(wiredGroup,routers); // find the min between the group
+		placeToLink = followWire(p, bestPair.first, bestPair.second);
+		p.link(placeToLink, bestPair.second);
+		wiredGroup.push_back(bestPair.second);
+		routers.erase(std::remove(routers.begin(), routers.end(), bestPair.second), routers.end()); // remove router from routers to link
 	}
-
+	bool spentMore = p.getSpentMoney() > p.getMaxBudget() || routers.size() > 0; // if we spent too much money of if there is a router still not linked
+	return spentMore;
 }
 
-std::ostream& operator<<(std::ostream& o, std::vector<Coordinate> &vector) {
+/**
+ *
+ * @param alreadyLinked : a vector of already linked routers
+ * @param toLink : a vector of routers to link
+ * @return a pair of coordinates with first the linked router and second the router to link
+ */
+std::pair<Coordinate, Coordinate> minTwoGroups(std::vector<Coordinate> alreadyLinked, std::vector<Coordinate> toLink){
+	std::pair<Coordinate, Coordinate> bestPair;
+	Coordinate bestRouter = argDistMin(alreadyLinked[0], toLink);
+	int bestDistance = distance(alreadyLinked[0], bestRouter);
+	bestPair.first =  alreadyLinked[0];
+	bestPair.second = bestRouter;
 
-	for (auto it = vector.begin(); it != vector.end(); it++) {
-		o << *it << std::endl;
+	Coordinate tryRouter;
+	for (auto& linkedRouter : alreadyLinked){
+		tryRouter = argDistMin(linkedRouter, toLink);
+		if (distance(tryRouter, linkedRouter) < bestDistance){
+			bestPair.first = linkedRouter;
+			bestPair.second = tryRouter;
+		}
 	}
-	return o;
+	return bestPair;
 }

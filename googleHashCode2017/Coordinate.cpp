@@ -17,10 +17,7 @@ std::ostream &operator<<(std::ostream &os, const Coordinate &c) {
 }
 
 bool operator==(Coordinate a, Coordinate b) {
-	if (a.x == b.x && a.y == b.y) {
-		return true;
-	}
-	else return false;
+	return a.x == b.x && a.y == b.y;
 }
 
 bool operator!=(Coordinate a, Coordinate b) {

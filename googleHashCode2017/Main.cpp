@@ -5,35 +5,29 @@
 
 #include "Output.h"
 
-int main() {
-	Plan p("../inputData/charleston_road.in");
 
-	std::cout << p;
+int main(int argc, char *argv[]) {
 
-	int money = 0;
+    if(argc == 2) {
+        Plan p(argv[1]);
 
-	std::cout <<"MaxBudget : "<< p.getMaxBudget() << std::endl;
-	std::cout <<"Router cost "<< p.getRouterCost() << std::endl;
-	std::cout <<"Wire cost " <<p.getWireCost() << std::endl;
-	//placeRoutersIterative(p, 10);
-	//sectorLink(p, listBarycentres, listRouters, money);
-	money = solveProblem(p, 9);
+        std::cout << "MaxBudget : " << p.getMaxBudget() << std::endl;
+        std::cout << "Router cost : " << p.getRouterCost() << std::endl;
+        std::cout << "Wire cost : " << p.getWireCost() << std::endl;
+        solveProblem(p);
 
-	std::cout << p;
-	std::cout << "money used : " << money << std::endl;
+        std::cout << "money used : " << p.getSpentMoney() << std::endl;
+        std::cout << "percentage of cells covered : " << p.percentageCovered() << std::endl;
 
-	// To fill an output file (in notepadd++ you can dezoom to analyse big maps)
-	/*std::ofstream file("../output/test.out", std::ios::out);
-	if (file) {
-		file << p << std::endl;
-	}*/
-
-	try {
-		output(p, "../charleston_road.out");
-	}
-	catch (std::exception e) {
-		std::cout << e.what();
-	}
-
+        try {
+			std::string input(argv[1]);
+			std::string outputFile = input.substr(0, input.size() - 2);
+			outputFile.append("out");
+            output(p, outputFile);
+        }
+        catch (std::exception e) {
+            std::cout << e.what();
+        }
+    }
 	return 0;
 }

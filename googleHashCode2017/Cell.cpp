@@ -37,8 +37,17 @@ Cell &Cell::operator=(Cell &&c) {
 Cell::~Cell() {
 }
 
-std::ostream &operator<<(std::ostream &o, Cell &c) {
-	o << c.getCoordinate() << " : " << c.floorType();
+int Cell::getNumberOfUncoveredCells() {
+	auto uncoveredCells = getCoverableCells();
+	return uncoveredCells.size();
+}
 
-	return o;
+std::vector<Cell *> Cell::getCoverableCells() {
+	std::vector<Cell *> cells;
+	for (auto& elem : coverableCells){
+		if(!elem->isCovered()){
+			cells.push_back(elem);
+		}
+	}
+	return cells;
 }
