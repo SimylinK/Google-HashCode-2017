@@ -10,13 +10,7 @@
 int main(int argc, char* argv[]) {
 
 	if (argc == 3) {
-
-		std::cout << "-----------time------------" << std::endl;
-		Count ct;// use it in the begin
 		std::string buffer = argv[1];
-	//	ct.runAllExe(buffer);// the path of .exe
-	//	ct.getAverageRunningTime();// get time
-		std::cout << "-----------score------------" << std::endl;
 
 		std::string outputFile = argv[2];
 
