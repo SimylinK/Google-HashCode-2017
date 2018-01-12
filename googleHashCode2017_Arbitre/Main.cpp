@@ -8,8 +8,6 @@
 #include "Count.h"
 
 int main(int argc, char* argv[]) {
-	std::cout << argv[1] << std::endl;
-	std::cout << argv[2] << std::endl;
 
 	if (argc == 3) {
 

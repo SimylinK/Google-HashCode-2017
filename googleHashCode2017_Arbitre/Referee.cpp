@@ -253,7 +253,6 @@ int Referee::calculateScore() {
   @return the name of the original input file
 */
 std::string Referee::splitOutput(std::string outputFile) {
-	std::cout << outputFile << std::endl;
 
 	int beginning = 18; //skip "..\\" at the beginning of the output path
 	int size = outputFile.length() - 21; //skip ".out" at the end of the file and take in account the 3 first characters already passed (3+4=7)
@@ -261,8 +260,6 @@ std::string Referee::splitOutput(std::string outputFile) {
 	std::string inputFile ("../inputAndOutput/");
 	inputFile.append(nameOfMap);
 	inputFile.append("in");
-
-	std::cout << inputFile << std::endl;
 
 	return inputFile;
 }
