@@ -29,11 +29,7 @@ int main() {
 
 	}
 	catch (std::exception e) {
-		std::cout << "This name of output file isn't valid. \n\nValid names of file are :\n../inputData/charleston_road.in\n../inputData/lets_go_higher.in\n../inputData/opera.in\n../inputData/rue_de_londres.in" << std::endl;
+		std::cout << "This name of output file isn't valid. \n\nValid names of file are :\n../inputData/charleston_road.out\n../inputData/lets_go_higher.out\n../inputData/opera.out\n../inputData/rue_de_londres.out" << std::endl;
 	}
-
-	std::cout << "haha hehe heihei";
-	std::cin.get();//pour un pose
-	
 	return 0;
 }
